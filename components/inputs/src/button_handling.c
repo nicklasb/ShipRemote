@@ -1,5 +1,5 @@
 
-#include "../include/button_handling.h"
+#include "button_handling.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>

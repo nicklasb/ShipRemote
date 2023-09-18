@@ -1,6 +1,10 @@
-# This file was automatically generated for projects
-# without default 'CMakeLists.txt' file.
+FILE(GLOB_RECURSE comm_sources 
+"include/*.h"
+"src/*.c" 
+)
 
-FILE(GLOB_RECURSE app_sources src/*.* include/*.*)
+idf_component_register(
+    SRCS ${comm_sources}
+    INCLUDE_DIRS . include 
+)
 
-idf_component_register(SRCS ${app_sources})
