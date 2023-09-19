@@ -2,6 +2,10 @@ menu "ShipRemote"
 
     config BUTTON_LEFT_GPIO
         int "Left button"
-        default 22
+        default 35
+
+    config BUTTON_RIGHT_GPIO
+        int "Left button"
+        default 32
 
 endmenu
