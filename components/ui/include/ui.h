@@ -1,4 +1,4 @@
 //#include <robconfig.h>
 
 
-void init_button_handling(void);
+void init_ui(char * _log_prefix);
