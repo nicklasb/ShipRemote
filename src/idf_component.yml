@@ -1,7 +1,14 @@
 dependencies:
   # Required IDF version
   idf: ">=4.1"
-
   robusto-base:
     git: https://github.com/RobustoFramework/pub_test.git
     path: components/robusto-base
+  robusto-network:
+    git: https://github.com/RobustoFramework/pub_test.git
+    path: components/robusto-network
+  robusto-ui:
+    git: https://github.com/RobustoFramework/pub_test.git
+    path: components/robusto-ui
+  esp32-button:
+    git: https://github.com/craftmetrics/esp32-button.git    

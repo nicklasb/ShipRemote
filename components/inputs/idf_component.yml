@@ -1,9 +1,0 @@
-dependencies:
-  # Required IDF version
-  idf: ">=4.1"
-
-  esp32-button:
-    git: https://github.com/craftmetrics/esp32-button.git
-  robusto-base:
-    git: https://github.com/RobustoFramework/pub_test.git
-    path: components/robusto-base
