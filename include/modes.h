@@ -1,3 +1,5 @@
+
+#pragma once
 #include "robconfig.h"
 
 typedef enum e_modes {
