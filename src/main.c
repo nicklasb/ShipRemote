@@ -16,8 +16,10 @@ void app_main() {
     init_loop(remote_log_prefix);
     start_communication();
     start_ap();
+
     init_screen(remote_log_prefix);
     init_buttons(remote_log_prefix);
+    
     start_loop();
 
 }
