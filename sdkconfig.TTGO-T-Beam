@@ -445,6 +445,13 @@ CONFIG_ROBUSTO_REPEATER_DELAY_MS=100
 #
 # CONFIG_ROBUSTO_UI is not set
 # end of UI
+
+#
+# Publisher Subscriber
+#
+# CONFIG_ROBUSTO_PUBSUB_SERVER is not set
+# CONFIG_ROBUSTO_PUBSUB_CLIENT is not set
+# end of Publisher Subscriber
 # end of Robusto Configuration
 
 #
@@ -1642,6 +1649,11 @@ CONFIG_ESP32_BUTTON_LONG_PRESS_REPEAT_MS=50
 CONFIG_ESP32_BUTTON_QUEUE_SIZE=4
 CONFIG_ESP32_BUTTON_TASK_STACK_SIZE=3072
 # end of ESP32 Button
+
+#
+# Publisher Subscriber
+#
+# end of Publisher Subscriber
 
 #
 # Networking
