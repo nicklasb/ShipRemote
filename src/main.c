@@ -14,6 +14,7 @@ void app_main() {
     init_robusto();
     init_ap(remote_log_prefix);
     init_loop(remote_log_prefix);
+    
     start_communication();
     start_ap();
 
