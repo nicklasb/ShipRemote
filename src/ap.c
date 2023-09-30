@@ -17,23 +17,25 @@ static const uint32_t set_evo_course = 126208;
 #define PUBSUB_UNSUBSCRIBE 1
 #define PUBSUB_PUBLISH 2
 
-static subscribed_topic_t *nmea_in_topic = NULL;
-
+static subscribed_topic_t *nmea_speed_topic = NULL;
+static subscribed_topic_t *nmea_ap_topic = NULL;
 rob_ret_val_t send_course_correction(int degrees)
 {
 
-    if ((nmea_in_topic) && (nmea_in_topic->topic_hash > 0))
+    if ((nmea_ap_topic) && (nmea_ap_topic->topic_hash > 0))
     {
+        ROB_LOGE(ap_log_prefix, "Create course correction message for PGN %lu, HDG %f, CHG %i!",set_evo_course, curr_heading, degrees);
         uint8_t data[12];
         memcpy(&data, &set_evo_course, sizeof(set_evo_course));
         memcpy(&data[4], &curr_heading, sizeof(float));
         memcpy(&data[8], &degrees, sizeof(int));
-        robusto_pubsub_client_publish(nmea_in_topic, &data, sizeof(data));
+        
+        robusto_pubsub_client_publish(nmea_ap_topic, &data, sizeof(data));
         return ROB_OK;
     }
     else
     {
-        ROB_LOGI(ap_log_prefix, "No subscription hash!");
+        ROB_LOGE(ap_log_prefix, "No subscription hash!");
         return ROB_FAIL;
     }
 }
@@ -124,7 +126,9 @@ void start_ap(char *_log_prefix)
 
     ROB_LOGI(ap_log_prefix, "Creating subscription");
 
-    nmea_in_topic = robusto_pubsub_client_subscribe(nmea_gateway, "NMEA.speed", pubsub_nmea_speed_cb);
+    nmea_speed_topic = robusto_pubsub_client_get_topic(nmea_gateway, "NMEA.speed\00", pubsub_nmea_speed_cb);
+    nmea_ap_topic = robusto_pubsub_client_get_topic(nmea_gateway, "NMEA.ap\00", NULL);
+
 }
 void init_ap(char *_log_prefix)
 {
