@@ -101,6 +101,11 @@ void pubsub_nmea_speed_cb(subscribed_topic_t *topic, uint8_t *data, uint16_t dat
 {
     ROB_LOGI(ap_log_prefix, "Got pubsub data from %s peer", topic->peer->name);
     rob_log_bit_mesh(ROB_LOG_INFO, ap_log_prefix, data, data_length);
+#ifdef CONFIG_ROBUSTO_UI_MINIMAL
+    char ap_row[15];
+    sprintf(&ap_row, "SOG %.1f", (float)(*(uint32_t *)data)/1000.0);
+    robusto_screen_minimal_write(ap_row, 3, 0);
+#endif
 }
 
 void start_ap(char *_log_prefix)
@@ -112,9 +117,9 @@ void start_ap(char *_log_prefix)
     // TTGO-LORA32
     // nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x58bf250541e0), robusto_mt_espnow);
     // Sail hat
-    // nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x1097bdd3f6f4), robusto_mt_espnow);
+    nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x1097bdd3f6f4), robusto_mt_espnow);
     // DevKit V4
-    nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x30c6f70407c4), robusto_mt_espnow);
+    //nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x30c6f70407c4), robusto_mt_espnow);
     if (!robusto_waitfor_byte(&nmea_gateway->state, PEER_KNOWN_INSECURE, 1000))
     {
         ROB_LOGE(ap_log_prefix, "Failed connecting to NMEA Gateway");
@@ -126,7 +131,7 @@ void start_ap(char *_log_prefix)
 
     ROB_LOGI(ap_log_prefix, "Creating subscription");
 
-    nmea_speed_topic = robusto_pubsub_client_get_topic(nmea_gateway, "NMEA.speed\00", pubsub_nmea_speed_cb);
+    nmea_speed_topic = robusto_pubsub_client_get_topic(nmea_gateway, "NMEA.speed\00", &pubsub_nmea_speed_cb);
     nmea_ap_topic = robusto_pubsub_client_get_topic(nmea_gateway, "NMEA.ap\00", NULL);
 
 }
