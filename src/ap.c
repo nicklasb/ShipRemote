@@ -9,16 +9,14 @@
 
 static float curr_heading;
 static char *ap_log_prefix;
-static robusto_peer_t *nmea_gateway = NULL;
 #define PUBSUB_SERVICE_ID 1958
 static const uint32_t set_evo_course = 126208;
-
-#define PUBSUB_SUBSCRIBE 0
-#define PUBSUB_UNSUBSCRIBE 1
-#define PUBSUB_PUBLISH 2
-
+#define SPEED_THROUGH_WATER_PGN 128259L
+#define TARGET_HEADING_MAGNETIC 65360L
+static robusto_peer_t *nmea_gateway = NULL;
 static subscribed_topic_t *nmea_speed_topic = NULL;
 static subscribed_topic_t *nmea_ap_topic = NULL;
+static subscribed_topic_t *nmea_hdg_topic = NULL;
 rob_ret_val_t send_course_correction(int degrees)
 {
 
@@ -99,14 +97,37 @@ void perform_ap_actions(e_action_t action)
 };
 void pubsub_nmea_speed_cb(subscribed_topic_t *topic, uint8_t *data, uint16_t data_length)
 {
-    ROB_LOGI(ap_log_prefix, "Got pubsub data from %s peer", topic->peer->name);
+    ROB_LOGI(ap_log_prefix, "In pubsub_nmea_speed_cb, peer %s ", topic->peer->name);
     rob_log_bit_mesh(ROB_LOG_INFO, ap_log_prefix, data, data_length);
-#ifdef CONFIG_ROBUSTO_UI_MINIMAL
-    char ap_row[15];
-    sprintf(&ap_row, "SOG %.1f", (float)(*(uint32_t *)data)/1000.0);
-    robusto_screen_minimal_write(ap_row, 3, 0);
-#endif
+    if (*(uint32_t *)data == SPEED_THROUGH_WATER_PGN) {
+    #ifdef CONFIG_ROBUSTO_UI_MINIMAL
+        char ap_row[15];
+        sprintf(&ap_row, "STW %-2.1f", (double)(*(uint16_t *)(data + sizeof(uint32_t))) / 1000);
+        robusto_screen_minimal_write(ap_row, 0, 2);
+    #endif
+    } else {
+        ROB_LOGE(ap_log_prefix, "Got pubsub data from %s i don't understand PGN %lu", topic->peer->name, *(uint32_t *)data); 
+    }
+
 }
+
+void pubsub_nmea_heading_cb(subscribed_topic_t *topic, uint8_t *data, uint16_t data_length)
+{
+    ROB_LOGI(ap_log_prefix, "In pubsub_nmea_heading_cb, peer %s ", topic->peer->name);
+    rob_log_bit_mesh(ROB_LOG_INFO, ap_log_prefix, data, data_length);
+    if (*(uint32_t *)data == TARGET_HEADING_MAGNETIC) {
+        curr_heading = *(float *)(data + sizeof(uint32_t));
+    #ifdef CONFIG_ROBUSTO_UI_MINIMAL
+        char ap_row[15];
+        sprintf(&ap_row, "THM %-3.1f", curr_heading);
+        robusto_screen_minimal_write(ap_row, 7, 2);
+    #endif
+    } else {
+        ROB_LOGE(ap_log_prefix, "Got pubsub data from %s i don't understand PGN %lu", topic->peer->name, *(uint32_t *)data); 
+    }
+
+}
+
 
 void start_ap(char *_log_prefix)
 {
@@ -117,7 +138,10 @@ void start_ap(char *_log_prefix)
     // TTGO-LORA32
     // nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x58bf250541e0), robusto_mt_espnow);
     // Sail hat
-    nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x1097bdd3f6f4), robusto_mt_espnow);
+    //nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x1097bdd3f6f4), robusto_mt_espnow);
+    // TTGO T-Beam
+    nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x08b61fc0d660), robusto_mt_espnow);
+    
     // DevKit V4
     //nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x30c6f70407c4), robusto_mt_espnow);
     if (!robusto_waitfor_byte(&nmea_gateway->state, PEER_KNOWN_INSECURE, 1000))
@@ -131,8 +155,9 @@ void start_ap(char *_log_prefix)
 
     ROB_LOGI(ap_log_prefix, "Creating subscription");
 
-    nmea_speed_topic = robusto_pubsub_client_get_topic(nmea_gateway, "NMEA.speed\00", &pubsub_nmea_speed_cb);
-    nmea_ap_topic = robusto_pubsub_client_get_topic(nmea_gateway, "NMEA.ap\00", NULL);
+    nmea_speed_topic = robusto_pubsub_client_get_topic(nmea_gateway, "NMEA.speed", &pubsub_nmea_speed_cb);
+    nmea_hdg_topic = robusto_pubsub_client_get_topic(nmea_gateway, "NMEA.hdg", &pubsub_nmea_heading_cb);
+    nmea_ap_topic = robusto_pubsub_client_get_topic(nmea_gateway, "NMEA.ap", NULL);
 
 }
 void init_ap(char *_log_prefix)
