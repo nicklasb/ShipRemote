@@ -29,4 +29,5 @@ void init_communication(char * _log_prefix) {
     comm_log_prefix = _log_prefix;
     register_network_service();
     register_server_service();
+    
 }

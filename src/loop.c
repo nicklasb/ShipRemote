@@ -33,8 +33,8 @@ void on_state_change(robusto_peer_t *peer, robusto_media_t *info, e_media_type m
         char err_row[4];
         sprintf(&err_row, "<->");
         robusto_screen_minimal_write(err_row, 0, 0);
-
 #endif
+        refresh_subscription();
     }
     else if (media_state == media_state_problem)
     {

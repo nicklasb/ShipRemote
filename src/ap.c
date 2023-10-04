@@ -11,15 +11,18 @@ static float curr_target_heading = -1;
 static float curr_heading = -1;
 static char *ap_log_prefix;
 #define COLUMN_2 8
+
 static const uint32_t set_evo_course = 126208;
-#define SPEED_THROUGH_WATER_PGN 128259L
-#define TARGET_HEADING_MAGNETIC 65360L
-#define HEADING_MAGNETIC 65359L
+
+#define SPEED_THROUGH_WATER_PGN 128259UL
+#define TARGET_HEADING_MAGNETIC 65360UL
+#define HEADING_MAGNETIC 65359UL
 
 static robusto_peer_t *nmea_gateway = NULL;
 static subscribed_topic_t *nmea_speed_topic = NULL;
 static subscribed_topic_t *nmea_ap_topic = NULL;
 static subscribed_topic_t *nmea_hdg_topic = NULL;
+
 rob_ret_val_t send_course_correction(int degrees)
 {
 
@@ -36,7 +39,8 @@ rob_ret_val_t send_course_correction(int degrees)
     }
     else
     {
-        ROB_LOGE(ap_log_prefix, "No subscription hash!");
+        ROB_LOGE(ap_log_prefix, "No subscription hash, refreshing subscriptions!");
+        refresh_subscription();
         return ROB_FAIL;
     }
 }
@@ -85,15 +89,13 @@ void perform_ap_actions(e_action_t action)
                 curr_target_heading = curr_target_heading + change - 360;
             }
             curr_target_heading = curr_target_heading + change;
-
         }
         else
         {
 #ifdef CONFIG_ROBUSTO_UI_MINIMAL
             char ap_row[15];
-            sprintf(&ap_row, "H:<!>");
-            robusto_screen_minimal_write(ap_row, COLUMN_2, 3);
-
+            sprintf(&ap_row, "HDG <!>");
+            robusto_screen_minimal_write(ap_row, 0, 3);
 #endif
         };
     }
@@ -129,13 +131,12 @@ void pubsub_nmea_heading_cb(subscribed_topic_t *topic, uint8_t *data, uint16_t d
         robusto_screen_minimal_write(ap_row, 0, 2);
 #endif
     }
-    else
-    if (*(uint32_t *)data == HEADING_MAGNETIC)
+    else if (*(uint32_t *)data == HEADING_MAGNETIC)
     {
         curr_heading = *(float *)(data + sizeof(uint32_t));
-            char ap_row[20];
-            sprintf(&ap_row, "HDG:%-3.f", curr_heading);
-            robusto_screen_minimal_write(ap_row, 0, 3);
+        char ap_row[20];
+        sprintf(&ap_row, "HDG %-3.f", curr_heading);
+        robusto_screen_minimal_write(ap_row, 0, 3);
     }
     else
     {
@@ -143,11 +144,52 @@ void pubsub_nmea_heading_cb(subscribed_topic_t *topic, uint8_t *data, uint16_t d
     }
 }
 
-void start_ap(char *_log_prefix)
+
+void refresh_subscription()
 {
-    // Start the pubsub client
-    robusto_pubsub_client_init(ap_log_prefix);
-    robusto_pubsub_client_start();
+    if ((nmea_gateway->state == PEER_UNKNOWN) || (nmea_gateway->state == PEER_PRESENTING))
+    {
+        ROB_LOGE(ap_log_prefix, "Peer unknown/presenting, not creating subscription.");
+        return;
+    }
+    ROB_LOGI(ap_log_prefix, "Creating subscriptions");
+    robusto_pubsub_remove_topic(nmea_speed_topic);
+    nmea_speed_topic = robusto_pubsub_client_get_topic(nmea_gateway, "NMEA.speed", &pubsub_nmea_speed_cb);
+    if (!nmea_speed_topic)
+    {
+        robusto_screen_minimal_write("S", 13, 0);
+    }
+    else
+    {
+        robusto_screen_minimal_write("*", 13, 0);
+    }
+    robusto_pubsub_remove_topic(nmea_hdg_topic);
+    nmea_hdg_topic = robusto_pubsub_client_get_topic(nmea_gateway, "NMEA.hdg", &pubsub_nmea_heading_cb);
+    if (!nmea_hdg_topic)
+    {
+        robusto_screen_minimal_write("H", 14, 0);
+    }
+    else
+    {
+        robusto_screen_minimal_write("*", 14, 0);
+    }
+    robusto_pubsub_remove_topic(nmea_ap_topic);
+    nmea_ap_topic = robusto_pubsub_client_get_topic(nmea_gateway, "NMEA.ap", NULL);
+    if (!nmea_ap_topic)
+    {
+        robusto_screen_minimal_write("A", 15, 0);
+    }
+    else
+    {
+        robusto_screen_minimal_write("*", 15, 0);
+    }
+}
+
+void start_ap()
+{
+
+    ROB_LOGI(ap_log_prefix, "Starting the AP functionality");
+
     /* The NMEA gateway peer */
     // TTGO-LORA32
     // nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x58bf250541e0), robusto_mt_espnow);
@@ -166,14 +208,15 @@ void start_ap(char *_log_prefix)
 #endif
         return;
     }
-
-    ROB_LOGI(ap_log_prefix, "Creating subscription");
-
-    nmea_speed_topic = robusto_pubsub_client_get_topic(nmea_gateway, "NMEA.speed", &pubsub_nmea_speed_cb);
-    nmea_hdg_topic = robusto_pubsub_client_get_topic(nmea_gateway, "NMEA.hdg", &pubsub_nmea_heading_cb);
-    nmea_ap_topic = robusto_pubsub_client_get_topic(nmea_gateway, "NMEA.ap", NULL);
+    else
+    {
+        refresh_subscription();
+    }
 }
 void init_ap(char *_log_prefix)
 {
     ap_log_prefix = _log_prefix;
+    // Start the pubsub client
+    robusto_pubsub_client_init(ap_log_prefix);
+    robusto_pubsub_client_start();
 }

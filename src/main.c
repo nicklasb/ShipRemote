@@ -11,14 +11,16 @@ char * remote_log_prefix;
 void app_main() {
     remote_log_prefix = "ShipRemote";
     init_communication(remote_log_prefix);
-    init_robusto();
     init_ap(remote_log_prefix);
-    init_loop(remote_log_prefix);
-    
+
+    init_robusto();
+    init_screen(remote_log_prefix);
     start_communication();
+    
+    init_loop(remote_log_prefix);
     start_ap();
 
-    init_screen(remote_log_prefix);
+    
     init_buttons(remote_log_prefix);
     
     start_loop();
