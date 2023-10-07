@@ -6,9 +6,10 @@
 #include <string.h>
 #include <robusto_screen_minimal.h>
 #include <robusto_pubsub_client.h>
+#include <inttypes.h>
 
-static float curr_target_heading = -1;
-static float curr_heading = -1;
+static int32_t curr_target_heading = -1;
+static int32_t curr_heading = -1;
 static char *ap_log_prefix;
 #define COLUMN_2 8
 
@@ -23,18 +24,19 @@ static subscribed_topic_t *nmea_speed_topic = NULL;
 static subscribed_topic_t *nmea_ap_topic = NULL;
 static subscribed_topic_t *nmea_hdg_topic = NULL;
 
-rob_ret_val_t send_course_correction(int degrees)
+rob_ret_val_t send_course_correction(int32_t degrees)
 {
 
     if ((nmea_ap_topic) && (nmea_ap_topic->topic_hash > 0))
     {
-        ROB_LOGE(ap_log_prefix, "Create course correction message for PGN %lu, HDG %f, CHG %i!", set_evo_course, curr_target_heading, degrees);
-        uint8_t data[12];
-        memcpy(&data, &set_evo_course, sizeof(set_evo_course));
-        memcpy(&data[4], &curr_target_heading, sizeof(float));
-        memcpy(&data[8], &degrees, sizeof(int));
+        ROB_LOGE(ap_log_prefix, "Create course correction message for PGN %lu, HDG %li, CHG %li!", set_evo_course, curr_target_heading, degrees);
+        uint8_t *data = robusto_malloc(12);
+        memcpy(data, &set_evo_course, sizeof(set_evo_course));
+        memcpy(data + 4, &curr_target_heading, sizeof(int32_t));
+        memcpy(data + 8, &degrees, sizeof(int32_t));
 
-        robusto_pubsub_client_publish(nmea_ap_topic, &data, sizeof(data));
+        robusto_pubsub_client_publish(nmea_ap_topic, data, 12);
+        robusto_free(data);
         return ROB_OK;
     }
     else
@@ -53,7 +55,7 @@ void perform_ap_actions(e_action_t action)
         return;
     }
     // TODO: Do no changes until an initial magnetic direction or target magnetic is available. To not steer up on a cliff.
-    int change = 0;
+    int32_t change = 0;
     if (action == ACTION_AP_LEFT_1)
     {
         change = -1;
@@ -89,6 +91,7 @@ void perform_ap_actions(e_action_t action)
                 curr_target_heading = curr_target_heading + change - 360;
             }
             curr_target_heading = curr_target_heading + change;
+            robusto_screen_minimal_write("*", 12, 0);
         }
         else
         {
@@ -96,6 +99,7 @@ void perform_ap_actions(e_action_t action)
             char ap_row[15];
             sprintf(&ap_row, "HDG <!>");
             robusto_screen_minimal_write(ap_row, 0, 3);
+            robusto_screen_minimal_write("P", 12, 0);
 #endif
         };
     }
@@ -124,19 +128,20 @@ void pubsub_nmea_heading_cb(subscribed_topic_t *topic, uint8_t *data, uint16_t d
     rob_log_bit_mesh(ROB_LOG_INFO, ap_log_prefix, data, data_length);
     if (*(uint32_t *)data == TARGET_HEADING_MAGNETIC)
     {
-        curr_target_heading = *(float *)(data + sizeof(uint32_t));
+        curr_target_heading = *(int32_t *)(data + sizeof(uint32_t));
 #ifdef CONFIG_ROBUSTO_UI_MINIMAL
         char ap_row[15];
-        sprintf(&ap_row, "THM %-3.0f ", curr_target_heading);
+        sprintf(&ap_row, "THM %3li ", curr_target_heading);
         robusto_screen_minimal_write(ap_row, 0, 2);
 #endif
     }
     else if (*(uint32_t *)data == HEADING_MAGNETIC)
     {
-        curr_heading = *(float *)(data + sizeof(uint32_t));
+        curr_heading = *(int32_t *)(data + sizeof(int32_t));
         char ap_row[20];
-        sprintf(&ap_row, "HDG %-3.f", curr_heading);
+        sprintf(&ap_row, "HDG %3li", curr_heading);
         robusto_screen_minimal_write(ap_row, 0, 3);
+        robusto_screen_minimal_write("*", 14, 0);
     }
     else
     {
@@ -152,7 +157,7 @@ void refresh_subscription()
         ROB_LOGE(ap_log_prefix, "Peer unknown/presenting, not creating subscription.");
         return;
     }
-    ROB_LOGI(ap_log_prefix, "Creating subscriptions");
+    ROB_LOGI(ap_log_prefix, "Creating subscriptions.");
     robusto_pubsub_remove_topic(nmea_speed_topic);
     nmea_speed_topic = robusto_pubsub_client_get_topic(nmea_gateway, "NMEA.speed", &pubsub_nmea_speed_cb);
     if (!nmea_speed_topic)
