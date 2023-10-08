@@ -1621,51 +1621,6 @@ CONFIG_ESP32_BUTTON_LONG_PRESS_REPEAT_MS=500
 CONFIG_ESP32_BUTTON_QUEUE_SIZE=4
 CONFIG_ESP32_BUTTON_TASK_STACK_SIZE=3072
 # end of ESP32 Button
-
-#
-# Publisher Subscriber
-#
-# end of Publisher Subscriber
-
-#
-# Networking
-#
-
-#
-# ESP-NOW-configuration
-#
-
-#
-# Testing
-#
-# end of Testing
-# end of ESP-NOW-configuration
-
-#
-# XPowersLib Configuration
-#
-# end of XPowersLib Configuration
-
-#
-# Testing & simulation
-#
-# end of Testing & simulation
-# end of Networking
-
-#
-# Repeater
-#
-# end of Repeater
-
-#
-# Memory
-#
-# end of Memory
-
-#
-# UI
-#
-# end of UI
 # end of Component config
 
 # Deprecated options for backward compatibility
