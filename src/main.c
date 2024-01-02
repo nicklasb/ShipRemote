@@ -6,24 +6,24 @@
 #include <robusto_init.h>
 #include <screen.h>
 #include <buttons.h>
-char * remote_log_prefix;
+char *remote_log_prefix;
 
-void app_main() {
+void app_main()
+{
+    
+    init_robusto();
     remote_log_prefix = "ShipRemote";
     init_communication(remote_log_prefix);
     init_loop(remote_log_prefix);
     init_ap(remote_log_prefix);
 
-    init_robusto();
+
     init_screen(remote_log_prefix);
     start_communication();
-    
 
     start_ap();
 
-    
     init_buttons(remote_log_prefix);
-    
-    start_loop();
 
+    start_loop();
 }

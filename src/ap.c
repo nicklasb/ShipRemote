@@ -24,6 +24,11 @@ static subscribed_topic_t *nmea_speed_topic = NULL;
 static subscribed_topic_t *nmea_ap_topic = NULL;
 static subscribed_topic_t *nmea_hdg_topic = NULL;
 
+
+robusto_peer_t * get_nmea_peer() {
+    return nmea_gateway;
+}
+
 rob_ret_val_t send_course_correction(int32_t degrees)
 {
 
@@ -54,9 +59,6 @@ void perform_ap_actions(e_action_t action)
         // We first need to have gotten a heading before we can allow AP commands (0 would turn the boat).
         ROB_LOGW(ap_log_prefix, "Cannot perform any heading changes before we have actual heading data");
 #ifdef CONFIG_ROBUSTO_UI_MINIMAL
-            char ap_row[15];
-            sprintf(&ap_row, "<W>");
-            robusto_screen_minimal_write(ap_row, 0, 3);
             robusto_screen_minimal_write("A", 12, 0);
 #endif
         return;
@@ -98,15 +100,12 @@ void perform_ap_actions(e_action_t action)
                 curr_target_heading = curr_target_heading + change - 360;
             }
             curr_target_heading = curr_target_heading + change;
-            robusto_screen_minimal_write("*", 12, 0);
+            robusto_screen_minimal_write("*", 13, 0);
         }
         else
         {
 #ifdef CONFIG_ROBUSTO_UI_MINIMAL
-            char ap_row[15];
-            sprintf(&ap_row, "<!>");
-            robusto_screen_minimal_write(ap_row, 0, 3);
-            robusto_screen_minimal_write("A", 13, 0);
+            robusto_screen_minimal_write("P", 13, 0);
 #endif
         };
     }
