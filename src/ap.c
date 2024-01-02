@@ -52,6 +52,13 @@ void perform_ap_actions(e_action_t action)
     if (curr_target_heading < 0)
     {
         // We first need to have gotten a heading before we can allow AP commands (0 would turn the boat).
+        ROB_LOGW(ap_log_prefix, "Cannot perform any heading changes before we have actual heading data");
+#ifdef CONFIG_ROBUSTO_UI_MINIMAL
+            char ap_row[15];
+            sprintf(&ap_row, "<W>");
+            robusto_screen_minimal_write(ap_row, 0, 3);
+            robusto_screen_minimal_write("A", 12, 0);
+#endif
         return;
     }
     // TODO: Do no changes until an initial magnetic direction or target magnetic is available. To not steer up on a cliff.
@@ -97,9 +104,9 @@ void perform_ap_actions(e_action_t action)
         {
 #ifdef CONFIG_ROBUSTO_UI_MINIMAL
             char ap_row[15];
-            sprintf(&ap_row, "HDG <!>");
+            sprintf(&ap_row, "<!>");
             robusto_screen_minimal_write(ap_row, 0, 3);
-            robusto_screen_minimal_write("P", 12, 0);
+            robusto_screen_minimal_write("A", 13, 0);
 #endif
         };
     }
@@ -124,8 +131,8 @@ void pubsub_nmea_speed_cb(subscribed_topic_t *topic, uint8_t *data, uint16_t dat
 
 void pubsub_nmea_heading_cb(subscribed_topic_t *topic, uint8_t *data, uint16_t data_length)
 {
-    ROB_LOGI(ap_log_prefix, "In pubsub_nmea_heading_cb, peer %s ", topic->peer->name);
-    rob_log_bit_mesh(ROB_LOG_INFO, ap_log_prefix, data, data_length);
+    ROB_LOGD(ap_log_prefix, "In pubsub_nmea_heading_cb, peer %s ", topic->peer->name);
+    rob_log_bit_mesh(ROB_LOG_DEBUG, ap_log_prefix, data, data_length);
     if (*(uint32_t *)data == TARGET_HEADING_MAGNETIC)
     {
         curr_target_heading = *(int32_t *)(data + sizeof(uint32_t));
