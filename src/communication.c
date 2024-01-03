@@ -74,9 +74,6 @@ void on_state_change(robusto_peer_t *peer, robusto_media_t *info, e_media_type m
     print_state((uint8_t)log2(media_type), media_state, media_type);
 }
 
-
-
-
 void start_communication()
 {
 
@@ -89,5 +86,5 @@ void start_communication()
 void init_communication(char *_log_prefix)
 {
     comm_log_prefix = _log_prefix;
-    robusto_qos_register_on_state_change(on_state_change);
+    robusto_qos_register_on_state_change(&on_state_change);
 }
