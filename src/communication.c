@@ -23,9 +23,6 @@ void print_state(uint8_t offset, e_media_state state, e_media_type media_type)
     char *state_char;
     switch (state)
     {
-    case media_state_down:
-        state_char = "_";
-        break;
     case media_state_problem:
         state_char = "!";
         break;
@@ -64,10 +61,6 @@ void print_state(uint8_t offset, e_media_state state, e_media_type media_type)
     robusto_screen_minimal_write(state_char, offset, 1);
 #endif
 }
-
-
-
-
 
 void on_state_change(robusto_peer_t *peer, robusto_media_t *info, e_media_type media_type, e_media_state media_state, e_media_problem problem)
 {
