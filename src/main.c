@@ -24,6 +24,6 @@ void app_main()
     start_ap();
 
     init_buttons(remote_log_prefix);
-
+    robusto_print_peers();
     start_loop();
 }

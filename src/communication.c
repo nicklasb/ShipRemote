@@ -15,6 +15,13 @@
 
 char *comm_log_prefix;
 
+static robusto_peer_t *nmea_gateway = NULL;
+
+robusto_peer_t *get_nmea_peer()
+{
+    return nmea_gateway;
+}
+
 /* TODO: Parametrize sending to gateways and servers */
 
 void print_state(uint8_t offset, e_media_state state, e_media_type media_type)
@@ -39,7 +46,7 @@ void print_state(uint8_t offset, e_media_state state, e_media_type media_type)
         state_char = "?";
     }
 
-    char * media_char;
+    char *media_char;
     switch (media_type)
     {
     case robusto_mt_espnow:
@@ -69,7 +76,34 @@ void on_state_change(robusto_peer_t *peer, robusto_media_t *info, e_media_type m
 
 void start_communication()
 {
+    /* The NMEA gateway peer */
+    // TTGO-LORA32
+    // nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x58bf250541e0), robusto_mt_espnow);
+    // Sail hat
+    // nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x1097bdd3f6f4), robusto_mt_espnow);
+    // TTGO T-Beam
+    ROB_LOGI(comm_log_prefix, "Add NMEA Gateway peer.");
+    nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x08b61fc0d660), robusto_mt_lora);
 
+    // DevKit V4
+    // nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x30c6f70407c4), robusto_mt_espnow);
+    while (nmea_gateway->state < PEER_KNOWN_INSECURE)
+    {
+        robusto_screen_minimal_write("Fetching info", 0, 2);
+        robusto_screen_minimal_write("from gateway ", 0, 3);
+        if (!robusto_waitfor_byte(&nmea_gateway->state, PEER_KNOWN_INSECURE, 3000))
+        {
+            ROB_LOGE(comm_log_prefix, "Failed connecting to NMEA Gateway");
+#ifdef CONFIG_ROBUSTO_UI_MINIMAL
+            robusto_screen_minimal_write("No info from ", 0, 2);
+            robusto_screen_minimal_write("gateway      ", 0, 3);
+#endif
+        }
+        r_delay(2000);
+    }
+    robusto_screen_minimal_write("             ", 0, 2);
+    robusto_screen_minimal_write("             ", 0, 3);
+    ROB_LOGI(comm_log_prefix, "Connnected and presented.");
     // TODO: It would appear that something should happen around here
     /* A Robusto server peer */
     // TTGO-LORA32

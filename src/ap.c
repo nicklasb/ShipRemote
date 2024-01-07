@@ -19,19 +19,17 @@ static const uint32_t set_evo_course = 126208;
 #define TARGET_HEADING_MAGNETIC 65360UL
 #define HEADING_MAGNETIC 65359UL
 
-static robusto_peer_t *nmea_gateway = NULL;
-static subscribed_topic_t *nmea_speed_topic = NULL;
+#define PUBSUB_OFFSET 13
+#define PUBSUB_HDG_OFFSET 0
+#define PUBSUB_SPEED_OFFSET 1
+#define PUBSUB_AP_OFFSET 2
+
+// TODO: Just do positions here instead? 
+
 static subscribed_topic_t *nmea_ap_topic = NULL;
-static subscribed_topic_t *nmea_hdg_topic = NULL;
-
-
-robusto_peer_t * get_nmea_peer() {
-    return nmea_gateway;
-}
 
 rob_ret_val_t send_course_correction(int32_t degrees)
 {
-
     if ((nmea_ap_topic) && (nmea_ap_topic->topic_hash > 0))
     {
         ROB_LOGE(ap_log_prefix, "Create course correction message for PGN %lu, HDG %li, CHG %li!", set_evo_course, curr_target_heading, degrees);
@@ -59,7 +57,7 @@ void perform_ap_actions(e_action_t action)
         // We first need to have gotten a heading before we can allow AP commands (0 would turn the boat).
         ROB_LOGW(ap_log_prefix, "Cannot perform any heading changes before we have actual heading data");
 #ifdef CONFIG_ROBUSTO_UI_MINIMAL
-            robusto_screen_minimal_write("A", 12, 0);
+            robusto_screen_minimal_write("A", PUBSUB_OFFSET, 0);
 #endif
         return;
     }
@@ -100,12 +98,14 @@ void perform_ap_actions(e_action_t action)
                 curr_target_heading = curr_target_heading + change - 360;
             }
             curr_target_heading = curr_target_heading + change;
-            robusto_screen_minimal_write("*", 13, 0);
+            #ifdef CONFIG_ROBUSTO_UI_MINIMAL
+            robusto_screen_minimal_write("*", PUBSUB_OFFSET, 1);
+            #endif
         }
         else
         {
 #ifdef CONFIG_ROBUSTO_UI_MINIMAL
-            robusto_screen_minimal_write("P", 13, 0);
+            robusto_screen_minimal_write("!", PUBSUB_OFFSET, 1);
 #endif
         };
     }
@@ -145,9 +145,8 @@ void pubsub_nmea_heading_cb(subscribed_topic_t *topic, uint8_t *data, uint16_t d
     {
         curr_heading = *(int32_t *)(data + sizeof(int32_t));
         char ap_row[20];
-        sprintf(&ap_row, "HDG %3li", curr_heading);
+        sprintf(&ap_row, " HM %3li", curr_heading);
         robusto_screen_minimal_write(ap_row, 0, 3);
-        robusto_screen_minimal_write("*", 14, 0);
     }
     else
     {
@@ -155,79 +154,56 @@ void pubsub_nmea_heading_cb(subscribed_topic_t *topic, uint8_t *data, uint16_t d
     }
 }
 
-
 void refresh_subscription()
 {
-    if ((nmea_gateway->state == PEER_UNKNOWN) || (nmea_gateway->state == PEER_PRESENTING))
-    {
-        ROB_LOGE(ap_log_prefix, "Peer unknown/presenting, not creating subscription.");
-        return;
-    }
-    ROB_LOGI(ap_log_prefix, "Creating subscriptions.");
-    robusto_pubsub_remove_topic(nmea_speed_topic);
-    nmea_speed_topic = robusto_pubsub_client_get_topic(nmea_gateway, "NMEA.speed", &pubsub_nmea_speed_cb);
-    if (!nmea_speed_topic)
-    {
-        robusto_screen_minimal_write("S", 13, 0);
-    }
-    else
-    {
-        robusto_screen_minimal_write("*", 13, 0);
-    }
-    robusto_pubsub_remove_topic(nmea_hdg_topic);
-    nmea_hdg_topic = robusto_pubsub_client_get_topic(nmea_gateway, "NMEA.hdg", &pubsub_nmea_heading_cb);
-    if (!nmea_hdg_topic)
-    {
-        robusto_screen_minimal_write("H", 14, 0);
-    }
-    else
-    {
-        robusto_screen_minimal_write("*", 14, 0);
-    }
-    robusto_pubsub_remove_topic(nmea_ap_topic);
-    nmea_ap_topic = robusto_pubsub_client_get_topic(nmea_gateway, "NMEA.ap", NULL);
-    if (!nmea_ap_topic)
-    {
-        robusto_screen_minimal_write("A", 15, 0);
-    }
-    else
-    {
-        robusto_screen_minimal_write("*", 15, 0);
-    }
+
+    robusto_screen_minimal_write("HSA", PUBSUB_OFFSET, 0);
+
+    robusto_pubsub_client_get_topic(get_nmea_peer(), "NMEA.hdg", &pubsub_nmea_heading_cb, PUBSUB_HDG_OFFSET);
+    robusto_pubsub_client_get_topic(get_nmea_peer(), "NMEA.speed", &pubsub_nmea_speed_cb, PUBSUB_SPEED_OFFSET);
+    nmea_ap_topic = robusto_pubsub_client_get_topic(get_nmea_peer(), "NMEA.ap", NULL, PUBSUB_AP_OFFSET);
 }
 
 void start_ap()
 {
 
     ROB_LOGI(ap_log_prefix, "Starting the AP functionality");
+    robusto_pubsub_client_start();
+    ROB_LOGW(ap_log_prefix, "Refreshing subscriptions.");
+    refresh_subscription();
+}
 
-    /* The NMEA gateway peer */
-    // TTGO-LORA32
-    // nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x58bf250541e0), robusto_mt_espnow);
-    // Sail hat
-    // nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x1097bdd3f6f4), robusto_mt_espnow);
-    // TTGO T-Beam
-    nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x08b61fc0d660), robusto_mt_lora);
-
-    // DevKit V4
-    // nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x30c6f70407c4), robusto_mt_espnow);
-    if (!robusto_waitfor_byte(&nmea_gateway->state, PEER_KNOWN_INSECURE, 1000))
-    {
-        ROB_LOGE(ap_log_prefix, "Failed connecting to NMEA Gateway");
-#ifdef CONFIG_ROBUSTO_UI_MINIMAL
-        robusto_screen_minimal_write("AP conn. failure!", 0, 3);
-#endif
-        return;
-    }
-    else
-    {
-        refresh_subscription();
+void topic_state_callback(subscribed_topic_t * topic) {
+    switch (topic->state) {
+        case TOPIC_STATE_STALE:
+            robusto_screen_minimal_write("¨", PUBSUB_OFFSET + topic->display_offset, 1);
+            break;
+        case TOPIC_STATE_ACTIVE:
+            robusto_screen_minimal_write("*", PUBSUB_OFFSET + topic->display_offset, 1);
+            break;
+        case TOPIC_STATE_INACTIVE:
+            robusto_screen_minimal_write("I", PUBSUB_OFFSET + topic->display_offset, 1);
+            break;
+        case TOPIC_STATE_PROBLEM:
+            robusto_screen_minimal_write("!", PUBSUB_OFFSET + topic->display_offset, 1);
+            break;
+        case TOPIC_STATE_REMOVING:
+            robusto_screen_minimal_write("R", PUBSUB_OFFSET + topic->display_offset, 1);
+            break;
+        case TOPIC_STATE_PUBLISHED:
+            robusto_screen_minimal_write("^", PUBSUB_OFFSET + topic->display_offset, 1);
+            break;
+        default:
+            robusto_screen_minimal_write("?", PUBSUB_OFFSET + topic->display_offset, 1);
+            break;   
     }
 }
+
+
 void init_ap(char *_log_prefix)
 {
     ap_log_prefix = _log_prefix;
     // Start the pubsub client
-    robusto_pubsub_client_init(ap_log_prefix);
-    robusto_pubsub_client_start();
+    robusto_pubsub_client_init(ap_log_prefix, &topic_state_callback);
+
 }
