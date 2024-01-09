@@ -4,7 +4,7 @@
 #include <robusto_logging.h>
 #include <robusto_concurrency.h>
 #include <string.h>
-#include <robusto_screen_minimal.h>
+#include <screen.h>
 #include <robusto_pubsub_client.h>
 #include <inttypes.h>
 
@@ -19,7 +19,7 @@ static const uint32_t set_evo_course = 126208;
 #define TARGET_HEADING_MAGNETIC 65360UL
 #define HEADING_MAGNETIC 65359UL
 
-#define PUBSUB_OFFSET 13
+#define PUBSUB_OFFSET 4
 #define PUBSUB_HDG_OFFSET 0
 #define PUBSUB_SPEED_OFFSET 1
 #define PUBSUB_AP_OFFSET 2
@@ -99,13 +99,13 @@ void perform_ap_actions(e_action_t action)
             }
             curr_target_heading = curr_target_heading + change;
             #ifdef CONFIG_ROBUSTO_UI_MINIMAL
-            robusto_screen_minimal_write("*", PUBSUB_OFFSET, 1);
+            robusto_screen_minimal_write_small("*", PUBSUB_OFFSET, 1);
             #endif
         }
         else
         {
 #ifdef CONFIG_ROBUSTO_UI_MINIMAL
-            robusto_screen_minimal_write("!", PUBSUB_OFFSET, 1);
+            robusto_screen_minimal_write_small("!", PUBSUB_OFFSET, 1);
 #endif
         };
     }
@@ -119,8 +119,9 @@ void pubsub_nmea_speed_cb(subscribed_topic_t *topic, uint8_t *data, uint16_t dat
 #ifdef CONFIG_ROBUSTO_UI_MINIMAL
         char ap_row[15];
         sprintf(&ap_row, "STW %-2.1f", (double)(*(uint16_t *)(data + sizeof(uint32_t))) / 1000);
-        robusto_screen_minimal_write(ap_row, COLUMN_2, 2);
+//        robusto_screen_minimal_write(ap_row, COLUMN_2, 3);
 #endif
+    // TODO: Add SOG
     }
     else
     {
@@ -136,17 +137,27 @@ void pubsub_nmea_heading_cb(subscribed_topic_t *topic, uint8_t *data, uint16_t d
     {
         curr_target_heading = *(int32_t *)(data + sizeof(uint32_t));
 #ifdef CONFIG_ROBUSTO_UI_MINIMAL
-        char ap_row[15];
-        sprintf(&ap_row, "THM %3li ", curr_target_heading);
-        robusto_screen_minimal_write(ap_row, 0, 2);
+
+        uint8_t before = 0;
+        uint8_t after = 0;
+        if (curr_target_heading < 100) {
+            before = (curr_target_heading < 10) ? 1:0;
+            after = 1;
+        }
+        char* thg = robusto_malloc(4);
+        sprintf(thg, "%.*s%li%.*s",before, "  ", curr_target_heading,after," ");
+        ROB_LOGE("sdfs", "|%s|", thg);
+        robusto_screen_minimal_write_xy(thg, 32, 2, FONT_LARGE);
+        robusto_free(thg);
+        robusto_screen_minimal_write("<", 3, 1);
 #endif
     }
     else if (*(uint32_t *)data == HEADING_MAGNETIC)
     {
         curr_heading = *(int32_t *)(data + sizeof(int32_t));
-        char ap_row[20];
-        sprintf(&ap_row, " HM %3li", curr_heading);
-        robusto_screen_minimal_write(ap_row, 0, 3);
+        char hm[20];
+        sprintf(&hm, " HM %3li", curr_heading);
+        robusto_screen_minimal_write(&hm, COLUMN_2, 3);
     }
     else
     {
@@ -157,7 +168,7 @@ void pubsub_nmea_heading_cb(subscribed_topic_t *topic, uint8_t *data, uint16_t d
 void refresh_subscription()
 {
 
-    robusto_screen_minimal_write("HSA", PUBSUB_OFFSET, 0);
+    robusto_screen_minimal_write_small("HSA", PUBSUB_OFFSET, 0);
 
     robusto_pubsub_client_get_topic(get_nmea_peer(), "NMEA.hdg", &pubsub_nmea_heading_cb, PUBSUB_HDG_OFFSET);
     robusto_pubsub_client_get_topic(get_nmea_peer(), "NMEA.speed", &pubsub_nmea_speed_cb, PUBSUB_SPEED_OFFSET);
@@ -176,25 +187,26 @@ void start_ap()
 void topic_state_callback(subscribed_topic_t * topic) {
     switch (topic->state) {
         case TOPIC_STATE_STALE:
-            robusto_screen_minimal_write("¨", PUBSUB_OFFSET + topic->display_offset, 1);
+            robusto_screen_minimal_write_small("-", PUBSUB_OFFSET + topic->display_offset, 1);
             break;
         case TOPIC_STATE_ACTIVE:
-            robusto_screen_minimal_write("*", PUBSUB_OFFSET + topic->display_offset, 1);
+            robusto_screen_minimal_write_small("*", PUBSUB_OFFSET + topic->display_offset, 1);
             break;
         case TOPIC_STATE_INACTIVE:
-            robusto_screen_minimal_write("I", PUBSUB_OFFSET + topic->display_offset, 1);
+            robusto_screen_minimal_write_small("I", PUBSUB_OFFSET + topic->display_offset, 1);
             break;
         case TOPIC_STATE_PROBLEM:
-            robusto_screen_minimal_write("!", PUBSUB_OFFSET + topic->display_offset, 1);
+            robusto_screen_minimal_write_small("!", PUBSUB_OFFSET + topic->display_offset, 1);
             break;
         case TOPIC_STATE_REMOVING:
-            robusto_screen_minimal_write("R", PUBSUB_OFFSET + topic->display_offset, 1);
+            robusto_screen_minimal_write_small("R", PUBSUB_OFFSET + topic->display_offset, 1);
             break;
         case TOPIC_STATE_PUBLISHED:
-            robusto_screen_minimal_write("^", PUBSUB_OFFSET + topic->display_offset, 1);
+            // TODO: Any UI point to discern between sending and receiving
+            robusto_screen_minimal_write_small("*", PUBSUB_OFFSET + topic->display_offset, 1);
             break;
         default:
-            robusto_screen_minimal_write("?", PUBSUB_OFFSET + topic->display_offset, 1);
+            robusto_screen_minimal_write_small("?", PUBSUB_OFFSET + topic->display_offset, 1);
             break;   
     }
 }

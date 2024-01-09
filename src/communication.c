@@ -3,13 +3,13 @@
 
 #include <robusto_server_init.h>
 #include <robusto_network_init.h>
-
+#include <screen.h>
 #include <robusto_message.h>
 
 #include <robusto_incoming.h>
 #include <robusto_queue.h>
 
-#include <robusto_screen_minimal.h>
+
 #include <robusto_qos.h>
 #include <math.h>
 
@@ -64,8 +64,8 @@ void print_state(uint8_t offset, e_media_state state, e_media_type media_type)
 
 #ifdef CONFIG_ROBUSTO_UI_MINIMAL
 
-    robusto_screen_minimal_write(media_char, offset, 0);
-    robusto_screen_minimal_write(state_char, offset, 1);
+    robusto_screen_minimal_write_small(media_char, offset, 0);
+    robusto_screen_minimal_write_small(state_char, offset, 1);
 #endif
 }
 
