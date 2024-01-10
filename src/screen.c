@@ -1,6 +1,7 @@
 #include "screen.h"
 #include <robusto_screen.h>
 #include <lvgl.h>
+
 static char * ui_log_prefix;
 
 void robusto_screen_minimal_write_xy(char * txt, uint16_t x, uint16_t y, uint8_t height) {
