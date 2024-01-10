@@ -7,6 +7,7 @@
 #include <screen.h>
 #include <robusto_pubsub_client.h>
 #include <inttypes.h>
+#include "nav_screen.h"
 
 static int32_t curr_target_heading = -1;
 static int32_t curr_heading = -1;
@@ -157,7 +158,7 @@ void pubsub_nmea_heading_cb(subscribed_topic_t *topic, uint8_t *data, uint16_t d
         curr_heading = *(int32_t *)(data + sizeof(int32_t));
         char hm[20];
         sprintf(&hm, " HM %3li", curr_heading);
-        robusto_screen_minimal_write(&hm, COLUMN_2, 3);
+        set_heading_magnetic(&hm);
     }
     else
     {
@@ -182,6 +183,7 @@ void start_ap()
     robusto_pubsub_client_start();
     ROB_LOGW(ap_log_prefix, "Refreshing subscriptions.");
     refresh_subscription();
+    set_heading_magnetic("000");
 }
 
 void topic_state_callback(subscribed_topic_t * topic) {
