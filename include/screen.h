@@ -6,7 +6,7 @@
 
 lv_obj_t * get_current_screen();
 
-void label_set_text(lv_obj_t * label, char * txt);
+void label_set_text(lv_obj_t * label, const char * txt);
 
 
 void robusto_screen_minimal_write_xy(char * txt, uint16_t x, uint16_t y, uint8_t height);

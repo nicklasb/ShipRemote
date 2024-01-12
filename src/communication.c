@@ -9,13 +9,16 @@
 #include <robusto_incoming.h>
 #include <robusto_queue.h>
 
-
+#include <nav_screen.h>
 #include <robusto_qos.h>
 #include <math.h>
 
 char *comm_log_prefix;
 
 static robusto_peer_t *nmea_gateway = NULL;
+
+char comm_status[4] = "   ";
+    
 
 robusto_peer_t *get_nmea_peer()
 {
@@ -27,45 +30,44 @@ robusto_peer_t *get_nmea_peer()
 void print_state(uint8_t offset, e_media_state state, e_media_type media_type)
 {
 
-    char *state_char;
+    char state_char;
     switch (state)
     {
     case media_state_problem:
-        state_char = "!";
+        state_char = '!';
         break;
     case media_state_recovering:
-        state_char = "R";
+        state_char = 'R';
         break;
     case media_state_working:
-        state_char = "*";
+        state_char = '*';
         break;
     case media_state_initiating:
-        state_char = "I";
+        state_char = 'I';
         break;
     default:
-        state_char = "?";
+        state_char = '?';
     }
 
-    char *media_char;
+    uint8_t media_offset;
     switch (media_type)
     {
     case robusto_mt_espnow:
-        media_char = "E";
+        media_offset = 0;
         break;
     case robusto_mt_i2c:
-        media_char = "I";
+        media_offset = 1;
         break;
     case robusto_mt_lora:
-        media_char = "L";
+        media_offset = 2;
         break;
     default:
-        media_char = "?";
+        ROB_LOGE(comm_log_prefix, "Unhandled mediatype %s", media_type_to_str(media_type));
+        return;
     }
-
-#ifdef CONFIG_ROBUSTO_UI_MINIMAL
-
-    robusto_screen_minimal_write_small(media_char, offset, 0);
-    robusto_screen_minimal_write_small(state_char, offset, 1);
+    comm_status[media_offset] = state_char;
+#ifdef CONFIG_ROBUSTO_UI
+    set_media_states(&comm_status);
 #endif
 }
 

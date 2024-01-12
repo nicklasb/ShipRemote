@@ -1,16 +1,17 @@
 #pragma once
 
+
 void set_heading_magnetic(const char *txt);
 
-void set_target_heading();
+void set_target_heading(const char *txt);
 
-void set_sog();
+void set_sog(const char *txt);
 
-void set_stw();
+void set_stw(const char *txt);
 
-void set_media_states();
+void set_media_states(const char *txt);
 
-void set_subscription_states();
+void set_subscription_states(const char *txt);
 
 void start_nav_screen();
 
