@@ -165,7 +165,7 @@ void pubsub_nmea_heading_cb(subscribed_topic_t *topic, uint8_t *data, uint16_t d
         sprintf(thg, "%.*s%li%.*s",before, "  ", curr_target_heading,after," ");
         set_target_heading(thg);
         robusto_free(thg);
-        pubsub_status[PUBSUB_HDG_OFFSET] = '<';
+        pubsub_status[PUBSUB_HDG_OFFSET] = '*';
         set_subscription_states(&pubsub_status);
 
 #endif
