@@ -98,9 +98,11 @@ void start_nav_screen()
 
         activity = lv_label_create(screen);
         lv_obj_set_width(activity, 24);
-        lv_obj_align(activity, LV_ALIGN_BOTTOM_LEFT, 0, -19);
+        lv_obj_align(activity, LV_ALIGN_BOTTOM_LEFT, 0, 0);
         lv_obj_add_style(activity, tiny_style_l, LV_STATE_DEFAULT);
-        label_set_text(activity, "   ");
+        lv_obj_move_foreground(activity);
+        label_set_text(activity, "  ");
+        
 
         lv_obj_t *media_label = lv_label_create(screen);
         lv_obj_set_width(media_label, 24);
