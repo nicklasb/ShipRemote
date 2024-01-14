@@ -30,6 +30,7 @@ robusto_peer_t *get_nmea_peer()
 void print_state(uint8_t offset, e_media_state state, e_media_type media_type)
 {
 
+    
     char state_char;
     switch (state)
     {
@@ -70,7 +71,25 @@ void print_state(uint8_t offset, e_media_state state, e_media_type media_type)
     set_media_states(&comm_status);
 #endif
 }
+void on_send_activity(media_queue_item_t * queue_item, e_media_type media_type) {
+    char activity[4] = "   ";
+    switch (media_type)
+    {
+    case robusto_mt_espnow:
+        strcpy(&activity,"_  ");
+        break;
+    case robusto_mt_i2c:
+        strcpy(&activity," _ ");
+        break;
+    case robusto_mt_lora:
+        strcpy(&activity,"  _");
+        break;
+    default:
+        break;
+    }
+    set_activity(&activity);
 
+}
 void on_state_change(robusto_peer_t *peer, robusto_media_t *info, e_media_type media_type, e_media_state media_state, e_media_problem problem)
 {
     print_state((uint8_t)log2(media_type), media_state, media_type);
@@ -84,32 +103,31 @@ void start_communication()
     // Sail hat
     // nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x1097bdd3f6f4), robusto_mt_espnow);
     // TTGO T-Beam
-    ROB_LOGI(comm_log_prefix, "Add NMEA Gateway peer.");
+    ROB_LOGE(comm_log_prefix, "Add NMEA Gateway peer.");
+    set_target_heading("*  ");
     nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x08b61fc0d660), robusto_mt_lora);
 
     // DevKit V4
     // nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x30c6f70407c4), robusto_mt_espnow);
     while (nmea_gateway->state < PEER_KNOWN_INSECURE)
     {
-        robusto_screen_minimal_write("Fetching info", 0, 2);
-        robusto_screen_minimal_write("from gateway ", 0, 3);
+        set_target_heading("** ");
         if (!robusto_waitfor_byte(&nmea_gateway->state, PEER_KNOWN_INSECURE, 3000))
         {
             ROB_LOGE(comm_log_prefix, "Failed connecting to NMEA Gateway");
-#ifdef CONFIG_ROBUSTO_UI_MINIMAL
-            robusto_screen_minimal_write("No info from ", 0, 2);
-            robusto_screen_minimal_write("gateway      ", 0, 3);
-#endif
+
         }
         r_delay(2000);
     }
-    robusto_screen_minimal_write("             ", 0, 2);
-    robusto_screen_minimal_write("             ", 0, 3);
-    ROB_LOGI(comm_log_prefix, "Connnected and presented.");
+
+    set_target_heading("***");
+    ROB_LOGW(comm_log_prefix, "Connnected and presented.");
     // TODO: It would appear that something should happen around here
     /* A Robusto server peer */
     // TTGO-LORA32
     // robusto_server = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x58bf250541e0), robusto_mt_espnow);
+
+    robusto_message_sending_register_on_activity(&on_send_activity);
 }
 
 void init_communication(char *_log_prefix)

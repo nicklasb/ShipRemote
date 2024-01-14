@@ -189,7 +189,9 @@ void refresh_subscription()
 {
 
     robusto_pubsub_client_get_topic(get_nmea_peer(), "NMEA.hdg", &pubsub_nmea_heading_cb, PUBSUB_HDG_OFFSET);
+    r_delay(200);
     robusto_pubsub_client_get_topic(get_nmea_peer(), "NMEA.speed", &pubsub_nmea_speed_cb, PUBSUB_SPEED_OFFSET);
+    r_delay(200);
     nmea_ap_topic = robusto_pubsub_client_get_topic(get_nmea_peer(), "NMEA.ap", NULL, PUBSUB_AP_OFFSET);
 }
 

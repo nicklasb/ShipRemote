@@ -1,5 +1,6 @@
 #pragma once
 
+void set_activity(const char *txt);
 
 void set_heading_magnetic(const char *txt);
 

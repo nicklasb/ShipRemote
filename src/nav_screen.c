@@ -12,6 +12,7 @@ static lv_obj_t *sog;
 static lv_obj_t *stw;
 static lv_obj_t *media_states;
 static lv_obj_t *subscription_states;
+static lv_obj_t *activity;
 
 static lv_style_t *large_style;
 static lv_style_t *small_style_l;
@@ -19,6 +20,12 @@ static lv_style_t *small_style_r;
 static lv_style_t *tiny_style_l;
 
 static char *nav_screen_log_prefix;
+
+
+void set_activity(const char *txt)
+{
+    label_set_text(activity, txt);
+}
 
 void set_heading_magnetic(const char *txt)
 {
@@ -62,7 +69,7 @@ void start_nav_screen()
         lv_obj_set_width(target_heading, 64);
         lv_obj_add_style(target_heading, large_style, LV_STATE_DEFAULT);
         lv_obj_align(target_heading, LV_ALIGN_TOP_MID, 0, 0);
-        label_set_text(target_heading, "000");
+        label_set_text(target_heading, "");
 
         heading_magnetic = lv_label_create(screen);
         lv_obj_set_width(heading_magnetic, 32);
@@ -87,6 +94,13 @@ void start_nav_screen()
         lv_obj_align(media_states, LV_ALIGN_BOTTOM_LEFT, 0, 0);
         lv_obj_add_style(media_states, tiny_style_l, LV_STATE_DEFAULT);
         label_set_text(media_states, "  ");
+
+
+        activity = lv_label_create(screen);
+        lv_obj_set_width(activity, 24);
+        lv_obj_align(activity, LV_ALIGN_BOTTOM_LEFT, 0, -19);
+        lv_obj_add_style(activity, tiny_style_l, LV_STATE_DEFAULT);
+        label_set_text(activity, "   ");
 
         lv_obj_t *media_label = lv_label_create(screen);
         lv_obj_set_width(media_label, 24);
