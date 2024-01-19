@@ -18,7 +18,6 @@ char *comm_log_prefix;
 static robusto_peer_t *nmea_gateway = NULL;
 
 char comm_status[4] = "   ";
-    
 
 robusto_peer_t *get_nmea_peer()
 {
@@ -30,7 +29,6 @@ robusto_peer_t *get_nmea_peer()
 void print_state(uint8_t offset, e_media_state state, e_media_type media_type)
 {
 
-    
     char state_char;
     switch (state)
     {
@@ -71,28 +69,41 @@ void print_state(uint8_t offset, e_media_state state, e_media_type media_type)
     set_media_states(&comm_status);
 #endif
 }
-void on_send_activity(media_queue_item_t * queue_item, e_media_type media_type) {
+void on_send_activity(media_queue_item_t *queue_item, e_media_type media_type)
+{
     char activity[4] = "   ";
     switch (media_type)
     {
     case robusto_mt_espnow:
-        strcpy(&activity,"_  ");
+        strcpy(&activity, "_  ");
         break;
     case robusto_mt_i2c:
-        strcpy(&activity," _ ");
+        strcpy(&activity, " _ ");
         break;
     case robusto_mt_lora:
-        strcpy(&activity,"  _");
+        strcpy(&activity, "  _");
         break;
     default:
         break;
     }
     set_activity(&activity);
-
 }
 void on_state_change(robusto_peer_t *peer, robusto_media_t *info, e_media_type media_type, e_media_state media_state, e_media_problem problem)
 {
     print_state((uint8_t)log2(media_type), media_state, media_type);
+}
+
+void on_presentation(robusto_peer_t *peer, e_presentation_reason reason)
+{
+
+    ROB_LOGE(comm_log_prefix, "Got a presentation request from the gateway, reason %hx", reason);
+    if (reason < presentation_update)
+    {
+        r_delay(2000);
+        ROB_LOGE(comm_log_prefix, "Refreshing subscriptions");
+        set_subscription_states("RRRRR");
+        refresh_subscription();
+    }
 }
 
 void start_communication()
@@ -106,7 +117,7 @@ void start_communication()
     ROB_LOGE(comm_log_prefix, "Add NMEA Gateway peer.");
     set_target_heading("*  ");
     nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x08b61fc0d660), robusto_mt_lora | robusto_mt_espnow);
-
+    nmea_gateway->on_presentation = &on_presentation;
     // DevKit V4
     // nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x30c6f70407c4), robusto_mt_espnow);
     while (nmea_gateway->state < PEER_KNOWN_INSECURE)
@@ -115,7 +126,6 @@ void start_communication()
         if (!robusto_waitfor_byte(&nmea_gateway->state, PEER_KNOWN_INSECURE, 3000))
         {
             ROB_LOGE(comm_log_prefix, "Failed connecting to NMEA Gateway");
-
         }
         r_delay(2000);
     }
