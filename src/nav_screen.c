@@ -74,6 +74,7 @@ void start_nav_screen()
         heading_magnetic = lv_label_create(screen);
         lv_obj_set_width(heading_magnetic, 32);
         lv_obj_add_style(heading_magnetic, small_style_r, LV_STATE_DEFAULT);
+    
         lv_obj_align(heading_magnetic, LV_ALIGN_TOP_RIGHT, 0, 0);
         label_set_text(heading_magnetic, "000");
 
@@ -144,6 +145,7 @@ void init_nav_screen(char *_log_prefix)
     small_style_r = robusto_malloc(sizeof(lv_style_t));
     lv_style_init(small_style_r);
     lv_style_set_text_align(small_style_r, LV_TEXT_ALIGN_RIGHT);
+    lv_style_set_pad_right(small_style_r, 2);
 
     tiny_style_l = robusto_malloc(sizeof(lv_style_t));
     lv_style_init(tiny_style_l);

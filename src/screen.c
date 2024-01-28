@@ -43,5 +43,10 @@ void init_screen(char *_log_prefix)
     robusto_screen_init(screen_log_prefix);
     
     display = robusto_screen_lvgl_get_active_display();
+    static lv_style_t style_scr;
+    lv_style_init(&style_scr);
+    lv_style_set_pad_left(&style_scr, 2);   
     screen = lv_disp_get_scr_act(display);
+    lv_obj_add_style(screen, &style_scr, LV_STATE_DEFAULT);
+    
 }
