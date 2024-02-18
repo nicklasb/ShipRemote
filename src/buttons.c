@@ -10,22 +10,22 @@
 #include <robusto_system.h>
 
 resistance_mapping_t resistances[6] = {
-    {.resistance = 176684, .adc_voltage = 2678, .adc_stdev = 4}, //This is the total resistance, or base source_voltage value
-    {.resistance = 92228, .adc_voltage = 2218, .adc_stdev = 5},
-    {.resistance = 42452, .adc_voltage = 2525, .adc_stdev = 3},
-    {.resistance = 18530, .adc_voltage = 2618, .adc_stdev = 4},
-    {.resistance = 7745, .adc_voltage = 2653, .adc_stdev = 2},
-    {.resistance = 3437, .adc_voltage = 2668, .adc_stdev = 3}, 
+    {.resistance = 180956, .adc_voltage = 2688, .adc_stdev = 6}, //This is the total resistance, or base source_voltage value
+    {.resistance = 96268, .adc_voltage = 2220, .adc_stdev = 7}, // Right 
+    {.resistance = 44894, .adc_voltage = 2533, .adc_stdev = 8}, // Up
+    {.resistance = 20435, .adc_voltage = 2626, .adc_stdev = 7}, // Left
+    {.resistance = 9719, .adc_voltage = 2660, .adc_stdev = 6}, // Down
+    {.resistance = 4968, .adc_voltage = 2674, .adc_stdev = 5}, // OK
 };
 
 resistor_monitor_t *monitor = NULL;
 uint32_t change_count = 0;
 
-#define BUTTON_OK 0x01
+#define BUTTON_OK 0x16
 #define BUTTON_UP 0x02
 #define BUTTON_LEFT 0x04
 #define BUTTON_DOWN 0x08
-#define BUTTON_RIGHT 0x10
+#define BUTTON_RIGHT 0x1
 
 static char *button_log_prefix;
 
