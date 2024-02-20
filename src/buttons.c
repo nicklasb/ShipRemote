@@ -81,9 +81,9 @@ void init_resistance_mappings()
     monitor->mappings = &resistances;
     monitor->mapping_count = 6;
     monitor->callback = &callback_buttons_press;
-    monitor->R1 = 41200;
-    monitor->R2_check_resistor = 2200;
-    monitor->source_voltage = 3300; //TODO:  3206;
+    monitor->R1 = 41100; // Nom 41200
+    monitor->R2_check_resistor = 2160; // Nom 2200
+    monitor->source_voltage = 3270; // Nom 3300
     monitor->GPIO = 38; // Usually OK.
     monitor->name = "Ladder monitor";
     monitor->ladder_decode = true;
