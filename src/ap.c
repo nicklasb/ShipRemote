@@ -70,18 +70,22 @@ void perform_ap_actions(e_action_t action)
     int32_t change = 0;
     if (action == ACTION_AP_LEFT_1)
     {
+        set_target_heading(" < ");
         change = -1;
     }
     else if (action == ACTION_AP_RIGHT_1)
     {
+        set_target_heading(" > ");
         change = 1;
     }
     else if (action == ACTION_AP_LEFT_10)
     {
+        set_target_heading("<<<");
         change = -10;
     }
     else if (action == ACTION_AP_RIGHT_10)
     {
+        set_target_heading(">>>");
         change = 10;
     }
     else
@@ -91,7 +95,7 @@ void perform_ap_actions(e_action_t action)
     }
     if ((change > 0) || (change < 0))
     {
-
+        
         if (send_course_correction(change) == ROB_OK)
         {
             if (curr_target_heading + change < 0)

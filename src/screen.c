@@ -29,6 +29,7 @@ void label_set_text(lv_obj_t * label, const char * txt) {
     if (label) {
         if (robusto_screen_lvgl_port_lock(2000)) {
         lv_label_set_text(label, txt);
+        
         robusto_screen_lvgl_port_unlock();
         } else {
             ROB_LOGE(screen_log_prefix, "Failed to get a lock on the LVGL port in 2000 ms");

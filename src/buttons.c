@@ -14,7 +14,7 @@ resistance_mapping_t resistances[6] = {
     {.resistance = 96268, .adc_voltage = 2220, .adc_stdev = 7}, // Right 
     {.resistance = 44894, .adc_voltage = 2533, .adc_stdev = 8}, // Up
     {.resistance = 20435, .adc_voltage = 2626, .adc_stdev = 7}, // Left
-    {.resistance = 9719, .adc_voltage = 2660, .adc_stdev = 6}, // Down
+    {.resistance = 9719, .adc_voltage = 2660, .adc_stdev = 4}, // Down 150
     {.resistance = 4968, .adc_voltage = 2674, .adc_stdev = 5}, // OK
 };
 
@@ -37,7 +37,7 @@ e_action_t poll_button_queue() {
     return ret_action;
 }
 
-void callback_buttons_press(uint32_t buttons)
+void callback_buttons_press(uint32_t buttons, float voltage)
 {
 
     char bit_string[33]; // 32 bits + null terminator
@@ -47,7 +47,8 @@ void callback_buttons_press(uint32_t buttons)
     }
     bit_string[32] = '\0'; // Null-terminate the string
 
-    ROB_LOGI("LADDER BUTTONS", "Change: %3.lu - Buttons: %s - Value: %lu.", change_count++, bit_string, buttons);
+    ROB_LOGI("LADDER BUTTONS", "Buttons: %s - Value: %lu, voltage: %.1f V. Change: %lu.", 
+        bit_string, buttons, voltage, change_count++);
 
     if (buttons == BUTTON_LEFT)
     {

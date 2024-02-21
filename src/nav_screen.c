@@ -67,6 +67,7 @@ void start_nav_screen()
 
         target_heading = lv_label_create(screen);
         lv_obj_set_width(target_heading, 64);
+        
         lv_obj_add_style(target_heading, large_style, LV_STATE_DEFAULT);
         lv_obj_align(target_heading, LV_ALIGN_TOP_MID, 0, 0);
         label_set_text(target_heading, "");
@@ -99,7 +100,7 @@ void start_nav_screen()
 
         activity = lv_label_create(screen);
         lv_obj_set_width(activity, 24);
-        lv_obj_align(activity, LV_ALIGN_BOTTOM_LEFT, 0, 0);
+        lv_obj_align(activity, LV_ALIGN_BOTTOM_LEFT, 0, 8);
         lv_obj_add_style(activity, tiny_style_l, LV_STATE_DEFAULT);
         lv_obj_move_foreground(activity);
         label_set_text(activity, "  ");
@@ -107,19 +108,19 @@ void start_nav_screen()
 
         lv_obj_t *media_label = lv_label_create(screen);
         lv_obj_set_width(media_label, 24);
-        lv_obj_align(media_label, LV_ALIGN_BOTTOM_LEFT, 0, -10);
+        lv_obj_align(media_label, LV_ALIGN_BOTTOM_LEFT, 0, -2);
         lv_obj_add_style(media_label, tiny_style_l, LV_STATE_DEFAULT);
         label_set_text(media_label, "EIL");
 
         subscription_states = lv_label_create(screen);
         lv_obj_set_width(subscription_states, 48);
-        lv_obj_align(subscription_states, LV_ALIGN_BOTTOM_LEFT, 24, 0);
+        lv_obj_align(subscription_states, LV_ALIGN_BOTTOM_LEFT, 24, 16);
         lv_obj_add_style(subscription_states, tiny_style_l, LV_STATE_DEFAULT);
         label_set_text(subscription_states, "    ");
 
         lv_obj_t *subscription_label = lv_label_create(screen);
         lv_obj_set_width(subscription_label, 48);
-        lv_obj_align(subscription_label, LV_ALIGN_BOTTOM_LEFT, 24, -10);
+        lv_obj_align(subscription_label, LV_ALIGN_BOTTOM_LEFT, 24, -2);
         lv_obj_add_style(subscription_label, tiny_style_l, LV_STATE_DEFAULT);
         label_set_text(subscription_label, "HMSA");
 

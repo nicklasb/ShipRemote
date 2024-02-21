@@ -35,7 +35,7 @@ void start_loop()
         // Poll buttons
         perform_actions(poll_button_queue());
 
-        r_delay(1);
+        robusto_yield();
         robusto_pubsub_check_topics();
         /* Do actions */
 
@@ -43,7 +43,7 @@ void start_loop()
 
         // Update UI
 
-        r_delay(1);
+        robusto_yield();
     }
 };
 
