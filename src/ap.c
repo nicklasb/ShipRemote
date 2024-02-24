@@ -39,7 +39,7 @@ rob_ret_val_t send_course_correction(int32_t degrees)
 {
     if ((nmea_ap_topic) && (nmea_ap_topic->topic_hash > 0))
     {
-        ROB_LOGE(ap_log_prefix, "Create course correction message for PGN %lu, HDG %li, CHG %li!", set_evo_course, curr_target_heading, degrees);
+        ROB_LOGW(ap_log_prefix, "Create course correction message for PGN %lu, HDG %li, CHG %li!", set_evo_course, curr_target_heading, degrees);
         uint8_t *data = robusto_malloc(12);
         memcpy(data, &set_evo_course, sizeof(set_evo_course));
         memcpy(data + 4, &curr_target_heading, sizeof(int32_t));

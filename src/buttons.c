@@ -9,19 +9,26 @@
 #include <robusto_concurrency.h>
 #include <robusto_system.h>
 
+#ifdef USE_ESPIDF
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "driver/gpio.h"
+#endif
+
 resistance_mapping_t resistances[6] = {
-    {.resistance = 180956, .adc_voltage = 2688, .adc_stdev = 6}, //This is the total resistance, or base source_voltage value
-    {.resistance = 96268, .adc_voltage = 2220, .adc_stdev = 7}, // Right 
-    {.resistance = 44894, .adc_voltage = 2533, .adc_stdev = 8}, // Up
-    {.resistance = 20435, .adc_voltage = 2626, .adc_stdev = 7}, // Left
-    {.resistance = 9719, .adc_voltage = 2660, .adc_stdev = 4}, // Down 150
-    {.resistance = 4968, .adc_voltage = 2674, .adc_stdev = 5}, // OK
+    {.resistance = 196030.5, .adc_voltage = 2693.8, .adc_stdev = 3.7}, //This is the total resistance, or base source_voltage value
+    {.resistance = 107509.2, .adc_voltage = 2224.6, .adc_stdev = 1.3},
+    {.resistance = 50758.0, .adc_voltage = 2539.7, .adc_stdev = 2.4},
+    {.resistance = 24543.2, .adc_voltage = 2628.5, .adc_stdev = 2.1},
+    {.resistance = 12638.9, .adc_voltage = 2662.0, .adc_stdev = 2.7},
+    {.resistance = 6849.7, .adc_voltage = 2677.0, .adc_stdev = 2.5},
 };
+
 
 resistor_monitor_t *monitor = NULL;
 uint32_t change_count = 0;
 
-#define BUTTON_OK 0x16
+#define BUTTON_OK 0x10
 #define BUTTON_UP 0x02
 #define BUTTON_LEFT 0x04
 #define BUTTON_DOWN 0x08
@@ -47,7 +54,7 @@ void callback_buttons_press(uint32_t buttons, float voltage)
     }
     bit_string[32] = '\0'; // Null-terminate the string
 
-    ROB_LOGI("LADDER BUTTONS", "Buttons: %s - Value: %lu, voltage: %.1f V. Change: %lu.", 
+    ROB_LOGW(button_log_prefix, "Buttons: %s - Value: %lu, voltage: %.1f V. Change: %lu.", 
         bit_string, buttons, voltage, change_count++);
 
     if (buttons == BUTTON_LEFT)
@@ -70,6 +77,11 @@ void callback_buttons_press(uint32_t buttons, float voltage)
         ROB_LOGI(button_log_prefix, "ACTION_AP_LEFT_10");
         curr_action = ACTION_AP_LEFT_10;
     } 
+    else if (buttons == BUTTON_OK)
+    {
+        ROB_LOGW(button_log_prefix, "ACTION_OK (unassigned)");
+        curr_action = ACTION_OK;
+    } 
 };
 
 void init_resistance_mappings()
@@ -84,7 +96,7 @@ void init_resistance_mappings()
     monitor->callback = &callback_buttons_press;
     monitor->R1 = 41100; // Nom 41200
     monitor->R2_check_resistor = 2160; // Nom 2200
-    monitor->source_voltage = 3270; // Nom 3300
+    monitor->source_voltage = 3260; // Nom 3300
     monitor->GPIO = 38; // Usually OK.
     monitor->name = "Ladder monitor";
     monitor->ladder_decode = true;
@@ -107,6 +119,12 @@ void init_buttons(char *_log_prefix)
      */
     button_log_prefix = _log_prefix;
     ROB_LOGI(button_log_prefix, "Init button");
+    gpio_pulldown_dis(GPIO_NUM_38);
+    gpio_pullup_dis(GPIO_NUM_38);
+    gpio_set_direction(GPIO_NUM_38, GPIO_MODE_INPUT);
+    //gpio_set_level(GPIO_NUM_39, 1);
+    gpio_set_pull_mode(GPIO_NUM_38, GPIO_FLOATING);
+
     init_resistance_mappings();
     ROB_LOGI(button_log_prefix, "Buttons initiated.");
 }

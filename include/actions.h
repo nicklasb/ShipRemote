@@ -19,6 +19,8 @@ typedef enum e_actions {
     ACTION_UPDATE_HEADING, /* Update heading */
     ACTION_UPDATE_SOG, /* Update Speed over ground */
     ACTION_UPDATE_STW, /* Update Speed through water */
-    ACTION_UPDATE_TRUE_WIND_ANGLE /* Update Speed through water */
+    ACTION_UPDATE_TRUE_WIND_ANGLE, /* Update Speed through water */
+
+    ACTION_OK /* Press the OK button */,
 
 } e_action_t;
