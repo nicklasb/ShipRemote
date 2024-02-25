@@ -20,7 +20,7 @@ resistance_mapping_t resistances[6] = {
     {.resistance = 107509.2, .adc_voltage = 2224.6, .adc_stdev = 2.3},
     {.resistance = 50758.0, .adc_voltage = 2539.7, .adc_stdev = 2.4},
     {.resistance = 24543.2, .adc_voltage = 2629.0, .adc_stdev = 2.1},
-    {.resistance = 12638.9, .adc_voltage = 2661.0, .adc_stdev = 1.5},
+    {.resistance = 12638.9, .adc_voltage = 2659.5, .adc_stdev = 1.5},
     {.resistance = 6849.7, .adc_voltage = 2675.0, .adc_stdev = 1.8},
 };
 
