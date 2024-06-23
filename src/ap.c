@@ -158,7 +158,6 @@ void pubsub_nmea_heading_cb(subscribed_topic_t *topic, uint8_t *data, uint16_t d
     {
         curr_target_heading = *(int32_t *)(data + sizeof(uint32_t));
 #ifdef CONFIG_ROBUSTO_UI
-
         uint8_t before = 0;
         uint8_t after = 0;
         if (curr_target_heading < 100) {

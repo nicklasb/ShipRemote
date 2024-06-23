@@ -22,12 +22,12 @@ void app_main()
     init_robusto();
     remote_log_prefix = "ShipRemote";
 #ifdef CONFIG_ROBUSTO_INPUT_ADC_MONITOR 
-    gpio_pulldown_dis(GPIO_NUM_38);
-    gpio_pullup_dis(GPIO_NUM_38);
-    gpio_set_direction(GPIO_NUM_38, GPIO_MODE_INPUT);
+    gpio_pulldown_dis(GPIO_NUM_36);
+    gpio_pullup_dis(GPIO_NUM_36);
+    gpio_set_direction(GPIO_NUM_36, GPIO_MODE_INPUT);
     //gpio_set_level(GPIO_NUM_39, 1);
-    gpio_set_pull_mode(GPIO_NUM_38, GPIO_FLOATING);
-
+    gpio_set_pull_mode(GPIO_NUM_36, GPIO_FLOATING);
+    
 #else
     init_communication(remote_log_prefix);
     init_loop(remote_log_prefix);

@@ -16,23 +16,25 @@
 #endif
 
 resistance_mapping_t resistances[6] = {
-    {.resistance = 196030.5, .adc_voltage = 2693.8, .adc_stdev = 3.7}, //This is the total resistance, or base source_voltage value
-    {.resistance = 107509.2, .adc_voltage = 2224.6, .adc_stdev = 2.3},
-    {.resistance = 50758.0, .adc_voltage = 2539.7, .adc_stdev = 2.4},
-    {.resistance = 24543.2, .adc_voltage = 2629.0, .adc_stdev = 2.1},
-    {.resistance = 12638.9, .adc_voltage = 2659.5, .adc_stdev = 1.5},
-    {.resistance = 6849.7, .adc_voltage = 2675.0, .adc_stdev = 1.8},
+    {.resistance = 205638.8, .adc_voltage = 2717.0, .adc_stdev = 3.0}, //This is the total resistance, or base source_voltage value
+    {.resistance = 117509.1, .adc_voltage = 2223.2, .adc_stdev = 1.7},
+    {.resistance = 55542.6, .adc_voltage = 2559.2, .adc_stdev = 2.0},
+    {.resistance = 26789.1, .adc_voltage = 2650.8, .adc_stdev = 1.4},
+    {.resistance = 11020.8, .adc_voltage = 2691.6, .adc_stdev = 2.5},
+    {.resistance = 5443.3, .adc_voltage = 2704.7, .adc_stdev = 1.5},
 };
+
+
 
 
 resistor_monitor_t *monitor = NULL;
 uint32_t change_count = 0;
 
-#define BUTTON_OK 0x10
+#define BUTTON_RIGHT 0x01
 #define BUTTON_UP 0x02
 #define BUTTON_LEFT 0x04
 #define BUTTON_DOWN 0x08
-#define BUTTON_RIGHT 0x1
+#define BUTTON_OK 0x10
 
 static char *button_log_prefix;
 
@@ -97,7 +99,7 @@ void init_resistance_mappings()
     monitor->R1 = 41100; // Nom 41200
     monitor->R2_check_resistor = 2160; // Nom 2200
     monitor->source_voltage = 3260; // Nom 3300
-    monitor->GPIO = 38; // Usually OK.
+    monitor->GPIO = 36; // Usually OK.
     monitor->name = "Ladder monitor";
     monitor->ladder_decode = true;
     monitor->ladder_exclude_count = 0;
@@ -119,11 +121,11 @@ void init_buttons(char *_log_prefix)
      */
     button_log_prefix = _log_prefix;
     ROB_LOGI(button_log_prefix, "Init button");
-    gpio_pulldown_dis(GPIO_NUM_38);
-    gpio_pullup_dis(GPIO_NUM_38);
-    gpio_set_direction(GPIO_NUM_38, GPIO_MODE_INPUT);
+    gpio_pulldown_dis(GPIO_NUM_36);
+    gpio_pullup_dis(GPIO_NUM_36);
+    gpio_set_direction(GPIO_NUM_36, GPIO_MODE_INPUT);
     //gpio_set_level(GPIO_NUM_39, 1);
-    gpio_set_pull_mode(GPIO_NUM_38, GPIO_FLOATING);
+    gpio_set_pull_mode(GPIO_NUM_36, GPIO_FLOATING);
 
     init_resistance_mappings();
     ROB_LOGI(button_log_prefix, "Buttons initiated.");
