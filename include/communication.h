@@ -8,3 +8,4 @@ robusto_peer_t * get_nmea_peer();
 
 void start_communication();
 void init_communication(char * _log_prefix);
+void register_presentation_callback();

@@ -33,12 +33,16 @@ void app_main()
     init_loop(remote_log_prefix);
     init_ap(remote_log_prefix);
 
+
     init_screen(remote_log_prefix);
     init_nav_screen(remote_log_prefix);
     start_nav_screen();
     start_communication();
     
     start_ap();
+
+    register_presentation_callback();
+    
     r_delay(3000);
 
     init_buttons(remote_log_prefix);

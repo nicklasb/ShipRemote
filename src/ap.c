@@ -9,8 +9,6 @@
 #include <inttypes.h>
 #include "nav_screen.h"
 
-
-
 static int32_t curr_target_heading = -1;
 static int32_t curr_heading = -1;
 static char *ap_log_prefix;
@@ -23,16 +21,15 @@ static const uint32_t set_evo_course = 126208;
 #define TARGET_HEADING_MAGNETIC 65360UL
 #define HEADING_MAGNETIC 65359UL
 
-
 #define PUBSUB_HDG_OFFSET 0
 #define PUBSUB_HDG_MAG_OFFSET 1
 #define PUBSUB_SPEED_OFFSET 2
 #define PUBSUB_AP_OFFSET 3
 
-// TODO: Just do positions here instead? 
+// TODO: Just do positions here instead?
 
 char pubsub_status[] = "    ";
-    
+
 static subscribed_topic_t *nmea_ap_topic = NULL;
 
 rob_ret_val_t send_course_correction(int32_t degrees)
@@ -56,7 +53,6 @@ rob_ret_val_t send_course_correction(int32_t degrees)
         return ROB_FAIL;
     }
 }
-
 
 void perform_ap_actions(e_action_t action)
 {
@@ -95,7 +91,7 @@ void perform_ap_actions(e_action_t action)
     }
     if ((change > 0) || (change < 0))
     {
-        
+
         if (send_course_correction(change) == ROB_OK)
         {
             if (curr_target_heading + change < 0)
@@ -107,16 +103,16 @@ void perform_ap_actions(e_action_t action)
                 curr_target_heading = curr_target_heading + change - 360;
             }
             curr_target_heading = curr_target_heading + change;
-            #ifdef CONFIG_ROBUSTO_UI
+#ifdef CONFIG_ROBUSTO_UI
             pubsub_status[PUBSUB_HDG_OFFSET] = '*';
             set_subscription_states(&pubsub_status);
-            #endif
+#endif
         }
         else
         {
 #ifdef CONFIG_ROBUSTO_UI
-        pubsub_status[PUBSUB_HDG_OFFSET] = '!';
-        set_subscription_states(&pubsub_status);
+            pubsub_status[PUBSUB_HDG_OFFSET] = '!';
+            set_subscription_states(&pubsub_status);
 #endif
         };
     }
@@ -132,17 +128,17 @@ void pubsub_nmea_speed_cb(subscribed_topic_t *topic, uint8_t *data, uint16_t dat
         sprintf(&ap_row, "%-2.1f", (double)(*(uint16_t *)(data + sizeof(uint32_t))) / 1000);
         set_stw(ap_row);
 #endif
-    // TODO: Add SOG
-    } else
-    if (*(uint32_t *)data == SPEED_COURSE_OVER_GROUND)
+        // TODO: Add SOG
+    }
+    else if (*(uint32_t *)data == SPEED_COURSE_OVER_GROUND)
     {
 #ifdef CONFIG_ROBUSTO_UI
         set_sog("?");
-        //char ap_row[15];
-        //sprintf(&ap_row, "%-2.1f", (double)(*(uint16_t *)(data + sizeof(uint32_t))) / 1000);
-        //set_spg(ap_row);
+        // char ap_row[15];
+        // sprintf(&ap_row, "%-2.1f", (double)(*(uint16_t *)(data + sizeof(uint32_t))) / 1000);
+        // set_spg(ap_row);
 #endif
-    // TODO: Add SOG
+        // TODO: Add SOG
     }
     else
     {
@@ -160,12 +156,13 @@ void pubsub_nmea_heading_cb(subscribed_topic_t *topic, uint8_t *data, uint16_t d
 #ifdef CONFIG_ROBUSTO_UI
         uint8_t before = 0;
         uint8_t after = 0;
-        if (curr_target_heading < 100) {
-            before = (curr_target_heading < 10) ? 1:0;
+        if (curr_target_heading < 100)
+        {
+            before = (curr_target_heading < 10) ? 1 : 0;
             after = 1;
         }
-        char* thg = robusto_malloc(4);
-        sprintf(thg, "%.*s%li%.*s",before, "  ", curr_target_heading,after," ");
+        char *thg = robusto_malloc(4);
+        sprintf(thg, "%.*s%li%.*s", before, "  ", curr_target_heading, after, " ");
         set_target_heading(thg);
         robusto_free(thg);
         pubsub_status[PUBSUB_HDG_OFFSET] = '*';
@@ -201,47 +198,47 @@ void refresh_subscription()
 void start_ap()
 {
 
-    ROB_LOGI(ap_log_prefix, "Starting the AP functionality");
+    ROB_LOGW(ap_log_prefix, "Starting the AP functionality");
     robusto_pubsub_client_start();
     ROB_LOGW(ap_log_prefix, "Refreshing subscriptions.");
     refresh_subscription();
 }
 
-void topic_state_callback(subscribed_topic_t * topic) {
+void topic_state_callback(subscribed_topic_t *topic)
+{
     char state_char = ' ';
-    switch (topic->state) {
-        case TOPIC_STATE_STALE:
-            state_char = '-';
-            break;
-        case TOPIC_STATE_ACTIVE:
-            state_char = '*';
-            break;
-        case TOPIC_STATE_INACTIVE:
-            state_char = 'I';
-            break;
-        case TOPIC_STATE_PROBLEM:
-            state_char = '!';
-            break;
-        case TOPIC_STATE_REMOVING:
-            state_char = 'R';
-            break;
-        case TOPIC_STATE_PUBLISHED:
-            // TODO: Any UI point to discern between sending and receiving
-            state_char = '*';
-            break;
-        default:
-            state_char = '?';
-            break;   
+    switch (topic->state)
+    {
+    case TOPIC_STATE_STALE:
+        state_char = '-';
+        break;
+    case TOPIC_STATE_ACTIVE:
+        state_char = '*';
+        break;
+    case TOPIC_STATE_INACTIVE:
+        state_char = 'I';
+        break;
+    case TOPIC_STATE_PROBLEM:
+        state_char = '!';
+        break;
+    case TOPIC_STATE_REMOVING:
+        state_char = 'R';
+        break;
+    case TOPIC_STATE_PUBLISHED:
+        // TODO: Any UI point to discern between sending and receiving
+        state_char = '*';
+        break;
+    default:
+        state_char = '?';
+        break;
     }
     pubsub_status[topic->display_offset] = state_char;
     set_subscription_states(&pubsub_status);
 }
-
 
 void init_ap(char *_log_prefix)
 {
     ap_log_prefix = _log_prefix;
     // Start the pubsub client
     robusto_pubsub_client_init(ap_log_prefix, &topic_state_callback);
-
 }

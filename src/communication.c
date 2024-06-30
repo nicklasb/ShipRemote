@@ -105,6 +105,9 @@ void on_presentation(robusto_peer_t *peer, e_presentation_reason reason)
         refresh_subscription();
     }
 }
+void register_presentation_callback() {
+    nmea_gateway->on_presentation = &on_presentation;
+}
 
 void start_communication()
 {
@@ -121,8 +124,9 @@ void start_communication()
     // T-Beam LoRa 32
     //nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x08b61fc0d660), robusto_mt_lora | robusto_mt_espnow);
     nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x1097bdd3f6f4), robusto_mt_espnow);
-
-    nmea_gateway->on_presentation = &on_presentation;
+    // This will be set later
+    nmea_gateway->on_presentation = NULL;
+    
     while (nmea_gateway->state < PEER_KNOWN_INSECURE)
     {
         set_target_heading("** ");

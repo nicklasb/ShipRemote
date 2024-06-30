@@ -112,7 +112,7 @@ void start_nav_screen()
 
         lv_obj_t *media_label = lv_label_create(screen);
         lv_obj_set_width(media_label, 24);
-        lv_obj_align(media_label, LV_ALIGN_BOTTOM_LEFT, 0, -2);
+        lv_obj_align(media_label, LV_ALIGN_BOTTOM_LEFT, 0, -8);
         lv_obj_add_style(media_label, tiny_style_l, LV_STATE_DEFAULT);
         label_set_text(media_label, "EIL");
 
@@ -124,7 +124,7 @@ void start_nav_screen()
 
         lv_obj_t *subscription_label = lv_label_create(screen);
         lv_obj_set_width(subscription_label, 48);
-        lv_obj_align(subscription_label, LV_ALIGN_BOTTOM_LEFT, 24, -2);
+        lv_obj_align(subscription_label, LV_ALIGN_BOTTOM_LEFT, 24, -8);
         lv_obj_add_style(subscription_label, tiny_style_l, LV_STATE_DEFAULT);
         label_set_text(subscription_label, "HMSA");
 
