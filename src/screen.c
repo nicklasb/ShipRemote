@@ -4,8 +4,8 @@
 #include <robusto_logging.h>
 
 static char *screen_log_prefix;
-static lv_disp_t *display;
-static lv_obj_t *screen;
+static lv_disp_t *display = NULL;
+static lv_obj_t *screen = NULL;
 
 lv_obj_t *get_current_screen()
 {
@@ -41,9 +41,16 @@ void label_set_text(lv_obj_t * label, const char * txt) {
 void init_screen(char *_log_prefix)
 {
     screen_log_prefix = _log_prefix;
-    robusto_screen_init(screen_log_prefix);
+    if (robusto_screen_init(screen_log_prefix) != ROB_OK) {
+        ROB_LOGE(screen_log_prefix, "Could not initialize display, aborting UI setup.");
+        return;
+    }
     
     display = robusto_screen_lvgl_get_active_display();
+    if (!display) {
+        ROB_LOGE(screen_log_prefix, "Could not get default display, aborting UI setup.");
+        return;
+    }
     static lv_style_t style_scr;
     lv_style_init(&style_scr);
     lv_style_set_pad_left(&style_scr, 2);   

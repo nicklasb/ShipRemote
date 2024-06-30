@@ -15,14 +15,21 @@
 #include "driver/gpio.h"
 #endif
 
+#define BUTTON_RIGHT 0x01
+#define BUTTON_UP 0x02
+#define BUTTON_LEFT 0x04
+#define BUTTON_DOWN 0x08
+#define BUTTON_OK 0x10
+
 resistance_mapping_t resistances[6] = {
     {.resistance = 205638.8, .adc_voltage = 2717.0, .adc_stdev = 3.0}, //This is the total resistance, or base source_voltage value
-    {.resistance = 117509.1, .adc_voltage = 2223.2, .adc_stdev = 1.7},
+    {.resistance = 117509.1, .adc_voltage = 2224.2, .adc_stdev = 2.7},
     {.resistance = 55542.6, .adc_voltage = 2559.2, .adc_stdev = 2.0},
-    {.resistance = 26789.1, .adc_voltage = 2650.8, .adc_stdev = 1.4},
+    {.resistance = 26789.1, .adc_voltage = 2651.8, .adc_stdev = 3.0},
     {.resistance = 11020.8, .adc_voltage = 2691.6, .adc_stdev = 2.5},
-    {.resistance = 5443.3, .adc_voltage = 2704.7, .adc_stdev = 1.5},
+    {.resistance = 5443.3, .adc_voltage = 2704.7, .adc_stdev = 2.5},
 };
+
 
 
 
@@ -30,11 +37,6 @@ resistance_mapping_t resistances[6] = {
 resistor_monitor_t *monitor = NULL;
 uint32_t change_count = 0;
 
-#define BUTTON_RIGHT 0x01
-#define BUTTON_UP 0x02
-#define BUTTON_LEFT 0x04
-#define BUTTON_DOWN 0x08
-#define BUTTON_OK 0x10
 
 static char *button_log_prefix;
 

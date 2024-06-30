@@ -1,6 +1,6 @@
 dependencies:
   # Required IDF version
   idf: ">=4.1"
-  robusto/robusto: "1.2.6"
+  robusto/robusto: "1.2.10"
   esp32-button:
     git: https://github.com/craftmetrics/esp32-button.git    

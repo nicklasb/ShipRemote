@@ -64,6 +64,10 @@ void start_nav_screen()
     {
         ROB_LOGE(nav_screen_log_prefix, "Nav screen initializing");
         screen = get_current_screen();
+        if (!screen) {
+            ROB_LOGE(nav_screen_log_prefix, "No screen, aborting initialization.");
+            return;
+        }
 
         target_heading = lv_label_create(screen);
         lv_obj_set_width(target_heading, 64);

@@ -39,7 +39,7 @@ void app_main()
     start_communication();
     
     start_ap();
-   r_delay(3000);
+    r_delay(3000);
 
     init_buttons(remote_log_prefix);
 //    robusto_print_peers();

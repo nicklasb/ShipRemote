@@ -119,8 +119,8 @@ void start_communication()
     // DevKit V4
     // nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x30c6f70407c4), robusto_mt_espnow);
     // T-Beam LoRa 32
-    //nmea_gateway = add_peer_by_mac_address("NMEA-Gateway", kconfig_mac_to_6_bytes(0x08b61fc0d660), robusto_mt_lora | robusto_mt_espnow);
-    nmea_gateway = add_peer_by_mac_address("NMEA-Gateway", kconfig_mac_to_6_bytes(0x1097bdd3f6f4), robusto_mt_espnow);
+    //nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x08b61fc0d660), robusto_mt_lora | robusto_mt_espnow);
+    nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x1097bdd3f6f4), robusto_mt_espnow);
 
     nmea_gateway->on_presentation = &on_presentation;
     while (nmea_gateway->state < PEER_KNOWN_INSECURE)
@@ -135,10 +135,6 @@ void start_communication()
 
     set_target_heading("***");
     ROB_LOGW(comm_log_prefix, "Connnected and presented.");
-    // TODO: It would appear that something should happen around here
-    /* A Robusto server peer */
-    // TTGO-LORA32
-    // robusto_server = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x58bf250541e0), robusto_mt_espnow);
 
     robusto_message_sending_register_on_activity(&on_send_activity);
 }
