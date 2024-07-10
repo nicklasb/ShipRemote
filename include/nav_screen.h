@@ -10,6 +10,8 @@ void set_sog(const char *txt);
 
 void set_stw(const char *txt);
 
+void set_pilot_state(const char *txt);
+
 void set_media_states(const char *txt);
 
 void set_subscription_states(const char *txt);

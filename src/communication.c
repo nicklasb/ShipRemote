@@ -114,8 +114,6 @@ void start_communication()
     /* The NMEA gateway peer */
     // TTGO-LORA32
     // nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x58bf250541e0), robusto_mt_espnow);
-    // Sail hat
-    // nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x1097bdd3f6f4), robusto_mt_espnow);
     // TTGO T-Beam
     ROB_LOGE(comm_log_prefix, "Add NMEA Gateway peer.");
     set_target_heading("*  ");
@@ -123,7 +121,13 @@ void start_communication()
     // nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x30c6f70407c4), robusto_mt_espnow);
     // T-Beam LoRa 32
     //nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x08b61fc0d660), robusto_mt_lora | robusto_mt_espnow);
-    nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x1097bdd3f6f4), robusto_mt_espnow);
+    
+    // Sail hat - old
+    //nmea_gateway = add_peer_by_mac_address("NMEA_Gateway", kconfig_mac_to_6_bytes(0x1097bdd3f6f4), robusto_mt_espnow);
+    
+    // Sail hat - new
+    nmea_gateway = add_peer_by_mac_address("NMEA-Gateway", kconfig_mac_to_6_bytes(0x08d1f985f294), robusto_mt_espnow);
+    
     // This will be set later
     nmea_gateway->on_presentation = NULL;
     

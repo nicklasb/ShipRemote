@@ -16,15 +16,6 @@ static char *ap_log_prefix;
 
 static const uint32_t set_evo_course = 126208;
 
-#define SPEED_THROUGH_WATER_PGN 128259UL
-#define SPEED_COURSE_OVER_GROUND 129026UL
-#define TARGET_HEADING_MAGNETIC 65360UL
-#define HEADING_MAGNETIC 65359UL
-
-#define PUBSUB_HDG_OFFSET 0
-#define PUBSUB_HDG_MAG_OFFSET 1
-#define PUBSUB_SPEED_OFFSET 2
-#define PUBSUB_AP_OFFSET 3
 
 // TODO: Just do positions here instead?
 
@@ -117,6 +108,40 @@ void perform_ap_actions(e_action_t action)
         };
     }
 };
+
+void pubsub_nmea_ap_out_cb(subscribed_topic_t *topic, uint8_t *data, uint16_t data_length)
+{
+    ROB_LOGI(ap_log_prefix, "In pubsub_nmea_ap_out_cb, peer %s ", topic->peer->name);
+    rob_log_bit_mesh(ROB_LOG_INFO, ap_log_prefix, data, data_length);
+    if (*(uint32_t *)data == PILOT_STATE)
+    {
+#ifdef CONFIG_ROBUSTO_UI
+    char pilot_state_row[15];
+    uint32_t state = *(int32_t *)(data + sizeof(int32_t));
+    switch (state) {
+        case PILOT_MODE_STANDBY:
+            sprintf(&pilot_state_row, "Stby");
+            break;
+        case PILOT_MODE_AUTO:
+            sprintf(&pilot_state_row, "Auto");
+            break;
+        case PILOT_MODE_WIND:
+            sprintf(&pilot_state_row, "Wind");
+            break;
+        case PILOT_MODE_TRACK:
+            sprintf(&pilot_state_row, "Track");
+            break;
+    };
+
+    set_pilot_state(pilot_state_row);
+#endif
+    }
+    else
+    {
+        ROB_LOGE(ap_log_prefix, "Got pubsub data from %s i don't understand PGN %lu", topic->peer->name, *(uint32_t *)data);
+    }
+}
+
 void pubsub_nmea_speed_cb(subscribed_topic_t *topic, uint8_t *data, uint16_t data_length)
 {
     ROB_LOGI(ap_log_prefix, "In pubsub_nmea_speed_cb, peer %s ", topic->peer->name);
@@ -148,7 +173,7 @@ void pubsub_nmea_speed_cb(subscribed_topic_t *topic, uint8_t *data, uint16_t dat
 
 void pubsub_nmea_heading_cb(subscribed_topic_t *topic, uint8_t *data, uint16_t data_length)
 {
-    ROB_LOGI(ap_log_prefix, "In pubsub_nmea_heading_cb, peer %s ", topic->peer->name);
+    ROB_LOGW(ap_log_prefix, "In pubsub_nmea_heading_cb, peer %s ", topic->peer->name);
     rob_log_bit_mesh(ROB_LOG_DEBUG, ap_log_prefix, data, data_length);
     if (*(uint32_t *)data == TARGET_HEADING_MAGNETIC)
     {
@@ -192,7 +217,9 @@ void refresh_subscription()
     r_delay(200);
     robusto_pubsub_client_get_topic(get_nmea_peer(), "NMEA.speed", &pubsub_nmea_speed_cb, PUBSUB_SPEED_OFFSET);
     r_delay(200);
-    nmea_ap_topic = robusto_pubsub_client_get_topic(get_nmea_peer(), "NMEA.ap", NULL, PUBSUB_AP_OFFSET);
+    robusto_pubsub_client_get_topic(get_nmea_peer(), "NMEA.ap_out", &pubsub_nmea_ap_out_cb, PUBSUB_AP_STATE_OFFSET);
+    r_delay(200);
+    nmea_ap_topic = robusto_pubsub_client_get_topic(get_nmea_peer(), "NMEA.ap_in", NULL, PUBSUB_AP_OFFSET);
 }
 
 void start_ap()

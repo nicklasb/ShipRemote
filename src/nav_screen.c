@@ -10,6 +10,7 @@ static lv_obj_t *heading_magnetic;
 static lv_obj_t *target_heading;
 static lv_obj_t *sog;
 static lv_obj_t *stw;
+static lv_obj_t *pilot_state;
 static lv_obj_t *media_states;
 static lv_obj_t *subscription_states;
 static lv_obj_t *activity;
@@ -18,6 +19,7 @@ static lv_style_t *large_style;
 static lv_style_t *small_style_l;
 static lv_style_t *small_style_r;
 static lv_style_t *tiny_style_l;
+static lv_style_t *tiny_narrow;
 
 static char *nav_screen_log_prefix;
 
@@ -45,6 +47,11 @@ void set_sog(const char *txt)
 void set_stw(const char *txt)
 {
     label_set_text(stw, txt);
+}
+
+void set_pilot_state(const char *txt)
+{
+    label_set_text(pilot_state, txt);
 }
 
 void set_media_states(const char *txt)
@@ -87,13 +94,19 @@ void start_nav_screen()
         lv_obj_set_width(sog, 32);
         lv_obj_align(sog, LV_ALIGN_TOP_LEFT, 0, 0);
         lv_obj_add_style(sog, small_style_l, LV_STATE_DEFAULT);
-        label_set_text(sog, "0");
+        label_set_text(sog, "--");
 
         stw = lv_label_create(screen);
         lv_obj_set_width(stw, 32);
         lv_obj_align(stw, LV_ALIGN_TOP_LEFT, 0, 16);
         lv_obj_add_style(stw, small_style_l, LV_STATE_DEFAULT);
-        label_set_text(stw, "0");
+        label_set_text(stw, "~~");
+
+        pilot_state = lv_label_create(screen);
+        lv_obj_set_width(pilot_state, 32);
+        lv_obj_align(pilot_state, LV_ALIGN_TOP_RIGHT, 0, 16);
+        lv_obj_add_style(pilot_state, tiny_narrow, LV_STATE_DEFAULT);
+        label_set_text(pilot_state, "Pilot");
 
         media_states = lv_label_create(screen);
         lv_obj_set_width(media_states, 24);
@@ -155,6 +168,13 @@ void init_nav_screen(char *_log_prefix)
     tiny_style_l = robusto_malloc(sizeof(lv_style_t));
     lv_style_init(tiny_style_l);
     lv_style_set_text_font(tiny_style_l, &lv_font_unscii_8);
+
     lv_style_set_text_align(tiny_style_l, LV_TEXT_ALIGN_LEFT);
+
+    tiny_narrow = robusto_malloc(sizeof(lv_style_t));
+    lv_style_init(tiny_narrow);
+    lv_style_set_text_font(tiny_narrow, &lv_font_unscii_8);
+    lv_style_set_text_letter_space(tiny_narrow, -2);
+    lv_style_set_text_align(tiny_narrow, LV_TEXT_ALIGN_RIGHT);
 
 }
