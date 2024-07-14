@@ -173,7 +173,7 @@ void pubsub_nmea_speed_cb(subscribed_topic_t *topic, uint8_t *data, uint16_t dat
 
 void pubsub_nmea_heading_cb(subscribed_topic_t *topic, uint8_t *data, uint16_t data_length)
 {
-    ROB_LOGW(ap_log_prefix, "In pubsub_nmea_heading_cb, peer %s ", topic->peer->name);
+    ROB_LOGI(ap_log_prefix, "In pubsub_nmea_heading_cb, peer %s ", topic->peer->name);
     rob_log_bit_mesh(ROB_LOG_DEBUG, ap_log_prefix, data, data_length);
     if (*(uint32_t *)data == TARGET_HEADING_MAGNETIC)
     {
