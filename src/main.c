@@ -39,9 +39,9 @@ void app_main()
     start_nav_screen();
     start_communication();
     
-//    start_ap();
+    start_ap();
 
-//    register_presentation_callback();
+    register_presentation_callback();
     
     r_delay(3000);
 
