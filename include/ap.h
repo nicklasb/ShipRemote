@@ -30,6 +30,7 @@ PILOT_MODE_TRACK = 4
 };
 
 void refresh_subscription();
+void problematize_subscription();
 void perform_ap_actions(e_action_t action);
 
 

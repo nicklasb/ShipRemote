@@ -102,7 +102,7 @@ void on_presentation(robusto_peer_t *peer, e_presentation_reason reason)
         r_delay(2000);
         ROB_LOGE(comm_log_prefix, "Refreshing subscriptions");
         set_subscription_states("RRRRR");
-        refresh_subscription();
+        problematize_subscription();
     }
 }
 void register_presentation_callback() {
