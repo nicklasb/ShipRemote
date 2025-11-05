@@ -236,7 +236,7 @@ void problematize_subscription() {
 void start_ap()
 {
 
-    ROB_LOGW(ap_log_prefix, "Starting the AP functionality");
+    ROB_LOGW(ap_log_prefix, "Starting the pubsub client");
     robusto_pubsub_client_start();
     ROB_LOGW(ap_log_prefix, "Refreshing subscriptions.");
     refresh_subscription();
